@@ -1,0 +1,101 @@
+{
+  "main_title": "🍷 Dashboard Analítico de Vinhos",
+  "main_subtitle": "Análise Avançada de Sentimento com Insights Específicos de Vinhos",
+  "main_description": "Análise TextBlob Aprimorada | Filtragem em Tempo Real | Visualizações Interativas",
+
+  "filters": {
+    "title": "🔧 Filtros Avançados",
+    "reset": "🔄 Resetar Todos os Filtros",
+    "wine_type": "🍷 Tipo de Vinho",
+    "wine_type_help": "Filtrar por tipo de vinho (Tinto, Branco, Rosé, etc.)",
+    "sentiment_category": "😊 Categoria de Sentimento",
+    "sentiment_help": "Filtrar por resultado da análise de sentimento",
+    "country": "🌍 País",
+    "country_help": "Filtrar por país de origem do vinho",
+    "polarity_range": "📈 Intervalo de Polaridade",
+    "polarity_help": "Filtrar por pontuação de polaridade do sentimento",
+    "rating_range": "⭐ Intervalo de Classificação",
+    "rating_help": "Filtrar por classificação do vinho",
+    "wine_terms": "🍇 Termos de Vinho Encontrados",
+    "wine_terms_help": "Filtrar por número de termos específicos de vinho encontrados",
+    "filtered_dataset": "📊 Dataset Filtrado",
+    "records": "Registos",
+    "percent_total": "% do Total"
+  },
+
+  "language": {
+    "selector": "🌐 Idioma",
+    "english": "English",
+    "portuguese": "Português"
+  },
+
+  "metrics": {
+    "title": "📊 Indicadores-Chave de Performance",
+    "total_reviews": "🍷 Total de Avaliações",
+    "avg_sentiment": "😊 Sentimento Médio",
+    "positive_percent": "👍 % Positivo",
+    "wine_terms_metric": "🍇 Termos de Vinho",
+    "wine_types_metric": "🍷 Tipos de Vinho"
+  },
+
+  "visualizations": {
+    "title": "📈 Visualizações Interativas",
+    "sentiment_distribution": "😊 Distribuição de Sentimento",
+    "polarity_comparison": "📈 Comparação de Análise de Polaridade",
+    "original_textblob": "TextBlob Original",
+    "enhanced_analysis": "Análise Aprimorada",
+    "wine_type_analysis": "🍷 Análise por Tipo de Vinho",
+    "wine_type_distribution": "🍷 Distribuição por Tipo de Vinho",
+    "avg_sentiment_wine_type": "📊 Sentimento Médio por Tipo de Vinho",
+    "geographic_analysis": "🌍 Análise Geográfica",
+    "top_countries_count": "🌍 Top Países por Número de Avaliações",
+    "top_countries_sentiment": "📊 Top Países por Sentimento",
+    "varietal_analysis": "🍇 Análise de Varietais",
+    "top_varietals_count": "🍇 Top Varietais por Contagem",
+    "top_varietals_sentiment": "📊 Top Varietais por Sentimento",
+    "rating_sentiment_correlation": "⭐ Correlação entre Classificação e Sentimento",
+    "rating_vs_sentiment": "⭐ Classificação vs Sentimento Aprimorado (Tamanho = Termos de Vinho Encontrados)"
+  },
+
+  "data_explorer": {
+    "title": "🔍 Explorador de Dados",
+    "select_columns": "📋 Selecionar colunas para exibir:",
+    "select_columns_help": "Escolha quais colunas mostrar na tabela de dados",
+    "sort_by": "Ordenar por:",
+    "order": "Ordem:",
+    "descending": "Descendente",
+    "ascending": "Ascendente",
+    "show_rows": "Mostrar linhas:",
+    "download_data": "📥 Descarregar Dados Filtrados (CSV)"
+  },
+
+  "insights": {
+    "title": "💡 Insights e Estatísticas",
+    "dataset_overview": "📊 Visão Geral do Dataset",
+    "total_records": "Total de Registos",
+    "memory_usage": "Uso de Memória",
+    "columns": "Colunas",
+    "data_types": "Tipos de Dados",
+    "analysis_summary": "🍷 Resumo da Análise",
+    "avg_polarity": "Polaridade Média",
+    "polarity_std": "Desvio Padrão da Polaridade",
+    "most_positive": "Mais Positivo",
+    "most_negative": "Mais Negativo"
+  },
+
+  "messages": {
+    "loading_data": "🔄 A carregar dados dos vinhos...",
+    "data_loaded": "✅ Carregados com sucesso {count:,} avaliações de vinhos de: `{file}`",
+    "no_data": "❌ Nenhum dado encontrado! Execute primeiro a análise principal: `python AS-TG-vinhos.py`",
+    "no_data_filters": "⚠️ Nenhum dado corresponde aos filtros selecionados. Ajuste os critérios."
+  },
+
+  "footer": {
+    "text": "🍷 <strong>Dashboard Analítico de Vinhos</strong> | Aprimorado com Análise de Sentimento Específica de Vinhos | Desenvolvido por Dario Dourado e Dario Dourado",
+    "data_processed": "Dados processados em:"
+  },
+
+  "common": {
+    "all": "Todos"
+  }
+}

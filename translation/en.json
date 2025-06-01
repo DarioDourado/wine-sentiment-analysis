@@ -1,0 +1,101 @@
+{
+  "main_title": "🍷 Wine Analytics Dashboard",
+  "main_subtitle": "Advanced Sentiment Analysis",
+  "main_description": "Enhanced TextBlob Analysis | Real-time Filtering | Interactive Visualizations",
+
+  "filters": {
+    "title": "🔧 Advanced Filters",
+    "reset": "🔄 Reset All Filters",
+    "wine_type": "🍷 Wine Type",
+    "wine_type_help": "Filter by wine type (Red, White, Rosé, etc.)",
+    "sentiment_category": "😊 Sentiment Category",
+    "sentiment_help": "Filter by sentiment analysis result",
+    "country": "🌍 Country",
+    "country_help": "Filter by wine country of origin",
+    "polarity_range": "📈 Polarity Range",
+    "polarity_help": "Filter by sentiment polarity score",
+    "rating_range": "⭐ Rating Range",
+    "rating_help": "Filter by wine rating",
+    "wine_terms": "🍇 Wine Terms Found",
+    "wine_terms_help": "Filter by number of wine-specific terms found",
+    "filtered_dataset": "📊 Filtered Dataset",
+    "records": "Records",
+    "percent_total": "% of Total"
+  },
+
+  "language": {
+    "selector": "🌐 Language",
+    "english": "English",
+    "portuguese": "Português"
+  },
+
+  "metrics": {
+    "title": "📊 Key Performance Indicators",
+    "total_reviews": "🍷 Total Reviews",
+    "avg_sentiment": "😊 Avg Sentiment",
+    "positive_percent": "👍 Positive %",
+    "wine_terms_metric": "🍇 Wine Terms",
+    "wine_types_metric": "🍷 Wine Types"
+  },
+
+  "visualizations": {
+    "title": "📈 Interactive Visualizations",
+    "sentiment_distribution": "😊 Sentiment Distribution",
+    "polarity_comparison": "📈 Polarity Analysis Comparison",
+    "original_textblob": "Original TextBlob",
+    "enhanced_analysis": "Enhanced Analysis",
+    "wine_type_analysis": "🍷 Wine Type Analysis",
+    "wine_type_distribution": "🍷 Wine Type Distribution",
+    "avg_sentiment_wine_type": "📊 Average Sentiment by Wine Type",
+    "geographic_analysis": "🌍 Geographic Analysis",
+    "top_countries_count": "🌍 Top Countries by Review Count",
+    "top_countries_sentiment": "📊 Top Countries by Sentiment",
+    "varietal_analysis": "🍇 Varietal Analysis",
+    "top_varietals_count": "🍇 Top Varietals by Count",
+    "top_varietals_sentiment": "📊 Top Varietals by Sentiment",
+    "rating_sentiment_correlation": "⭐ Rating vs Sentiment Correlation",
+    "rating_vs_sentiment": "⭐ Rating vs Enhanced Sentiment (Size = Wine Terms Found)"
+  },
+
+  "data_explorer": {
+    "title": "🔍 Data Explorer",
+    "select_columns": "📋 Select columns to display:",
+    "select_columns_help": "Choose which columns to show in the data table",
+    "sort_by": "Sort by:",
+    "order": "Order:",
+    "descending": "Descending",
+    "ascending": "Ascending",
+    "show_rows": "Show rows:",
+    "download_data": "📥 Download Filtered Data (CSV)"
+  },
+
+  "insights": {
+    "title": "💡 Insights & Statistics",
+    "dataset_overview": "📊 Dataset Overview",
+    "total_records": "Total Records",
+    "memory_usage": "Memory Usage",
+    "columns": "Columns",
+    "data_types": "Data Types",
+    "analysis_summary": "🍷 Analysis Summary",
+    "avg_polarity": "Avg Polarity",
+    "polarity_std": "Polarity Std",
+    "most_positive": "Most Positive",
+    "most_negative": "Most Negative"
+  },
+
+  "messages": {
+    "loading_data": "🔄 Loading wine data...",
+    "data_loaded": "✅ Successfully loaded {count:,} wine reviews from: `{file}`",
+    "no_data": "❌ No data found! Please run the main analysis first: `python AS-TG-vinhos.py`",
+    "no_data_filters": "⚠️ No data matches the selected filters. Please adjust your criteria."
+  },
+
+  "footer": {
+    "text": "🍷 <strong>Wine Analytics Dashboard</strong> | Enhanced with Wine-Specific Sentiment Analysis | Built by Dario Dourado e Renato Ruivo",
+    "data_processed": "Data processed at:"
+  },
+
+  "common": {
+    "all": "All"
+  }
+}
