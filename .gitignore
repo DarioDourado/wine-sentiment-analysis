@@ -2,6 +2,8 @@
 # Wine Sentiment Analysis - .gitignore
 # =============================================================================
 
+# Python
+# -----------------------------------------------------------------------------
 __pycache__/
 *.py[cod]
 *$py.class
@@ -37,6 +39,7 @@ env.bak/
 venv.bak/
 wine-analysis-env/
 wine-sentiment-env/
+wine-env/
 
 # IDE & Editors
 # -----------------------------------------------------------------------------
@@ -53,12 +56,24 @@ Thumbs.db
 .ipynb_checkpoints
 *.ipynb
 
-# Data Files (sensitive/large datasets)
+# Data Files Strategy
 # -----------------------------------------------------------------------------
-# Raw data files (comment out if you want to include sample data)
-*.csv
+# Keep data folder structure but ignore large processed files
+data/*_processed.csv
+data/*_large.csv
+data/cache/
+data/temp/
+.csv
+
+# But KEEP these important data files
+!data/
+!data/.gitkeep
+!data/avaliacao_vinhos.csv
+!data/wine_reviews.csv
+!data/sample_*.csv
+
+# Other data formats to ignore (except sample files)
 *.xlsx
-*.json
 *.parquet
 *.pkl
 *.pickle
@@ -68,10 +83,15 @@ Thumbs.db
 !translation/*.json
 !README.md
 
-# Generated Output Files
+# Generated Output Files (from analysis)
 # -----------------------------------------------------------------------------
-# Data outputs
-data/
+# Large generated datasets
+data/wine_sentiment_data_*.csv
+data/wine_analysis_summary_*.csv
+data/processed_reviews.json
+data/processed_*
+
+# Other output folders
 output/
 results/
 exports/
@@ -163,15 +183,6 @@ coverage.xml
 
 # Wine Analysis Specific
 # -----------------------------------------------------------------------------
-# Processed datasets (these can be large)
-wine_sentiment_data_*.csv
-wine_analysis_summary_*.csv
-processed_reviews.json
-
-# Generated analysis reports
-analysis_report_*.html
-analysis_report_*.pdf
-
 # Cached data
 cache/
 .cache/
@@ -193,21 +204,18 @@ settings.local.py
 *.7z
 
 # =============================================================================
-# IMPORTANT: Files to KEEP in repository
+# DATA STRATEGY EXPLAINED:
 # =============================================================================
-# These files should always be included:
-# - AS-TG-vinhos.py (main script)
-# - dashboard.py (dashboard code)
-# - requirements.txt (dependencies)
-# - README.md (documentation)
-# - translation/en.json (English translations)
-# - translation/pt.json (Portuguese translations)
-# - .gitignore (this file)
-# - LICENSE (if applicable)
-
+# ✅ KEPT in repository:
+# - data/ folder structure
+# - data/avaliacao_vinhos.csv (main input file)
+# - data/wine_reviews.csv (alternative input file)
+# - data/sample_*.csv (sample datasets)
+# 
+# ❌ IGNORED (generated files):
+# - data/wine_sentiment_data_*.csv (large processed files)
+# - data/wine_analysis_summary_*.csv (analysis outputs)
+# - data/processed_reviews.json (processed data)
+# - data/*_processed.csv (any processed files)
+# - data/*_large.csv (large datasets)
 # =============================================================================
-# SAMPLE DATA: Uncomment if you want to include sample datasets
-# =============================================================================
-# !sample_data/
-# !sample_data/*.csv
-# !data/sample_wine_reviews.csv

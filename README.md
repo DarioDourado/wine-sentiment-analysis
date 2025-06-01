@@ -13,6 +13,11 @@
 ## 🚀 Quick Start
 
 ```bash
+# Create virtual environment
+python -m venv wine-env
+source wine-env/bin/activate  # macOS/Linux
+# wine-env\Scripts\activate   # Windows
+
 # Install dependencies
 pip install -r requirements.txt
 
@@ -29,6 +34,41 @@ streamlit run dashboard.py
 
 **Prerequisites:** Python 3.8+
 
+### **Option 1: Virtual Environment (Recommended)**
+
+1. **Create and activate virtual environment:**
+
+   ```bash
+   # Create virtual environment
+   python -m venv wine-env
+
+   # Activate (macOS/Linux)
+   source wine-env/bin/activate
+
+   # Activate (Windows)
+   wine-env\Scripts\activate
+
+   # Verify activation (should show wine-env in prompt)
+   which python  # macOS/Linux
+   where python  # Windows
+   ```
+
+2. **Install dependencies:**
+
+   ```bash
+   pip install --upgrade pip
+   pip install -r requirements.txt
+   ```
+
+3. **First run only (NLTK data):**
+   ```python
+   import nltk
+   nltk.download('punkt')
+   nltk.download('stopwords')
+   ```
+
+### **Option 2: System-wide Installation**
+
 1. **Download project files:**
 
    - `AS-TG-vinhos.py`
@@ -43,14 +83,30 @@ streamlit run dashboard.py
    pip install -r requirements.txt
    ```
 
-3. **First run only (NLTK data):**
-   ```python
-   import nltk
-   nltk.download('punkt')
-   nltk.download('stopwords')
-   ```
+### **Option 3: Using Conda**
+
+```bash
+# Create conda environment
+conda create -n wine-analysis python=3.9
+
+# Activate environment
+conda activate wine-analysis
+
+# Install dependencies
+pip install -r requirements.txt
+```
 
 ## 💻 Usage
+
+### **Activate Environment (if using virtual env)**
+
+```bash
+# Every time you use the project
+source wine-env/bin/activate  # macOS/Linux
+# wine-env\Scripts\activate   # Windows
+```
+
+### **Run Analysis**
 
 ```bash
 python AS-TG-vinhos.py
@@ -62,6 +118,13 @@ python AS-TG-vinhos.py
 2. 📊 **Gráficos no Terminal** - Static charts saved as images
 3. 📋 **Apenas Resumo** - Text-based analysis
 4. 🚪 **Sair** - Exit
+
+### **Deactivate Environment**
+
+```bash
+# When finished working
+deactivate
+```
 
 ## 📊 Input Data
 
@@ -104,6 +167,7 @@ wine-sentiment-analysis/
 ├── dashboard.py                 # Streamlit dashboard
 ├── requirements.txt             # Dependencies
 ├── README.md                    # This file
+├── wine-env/                    # Virtual environment (local)
 ├── translation/                 # Translations
 │   ├── en.json                 # English
 │   └── pt.json                 # Portuguese
@@ -124,6 +188,9 @@ wine-sentiment-analysis/
 2. **Streamlit won't start:**
 
    ```bash
+   # Make sure virtual environment is activated
+   source wine-env/bin/activate
+
    pip install --upgrade streamlit
    python -m streamlit run dashboard.py
    ```
@@ -131,13 +198,38 @@ wine-sentiment-analysis/
 3. **Missing dependencies:**
 
    ```bash
+   # Activate environment first
+   source wine-env/bin/activate
    pip install -r requirements.txt
    ```
 
-4. **Port conflicts:**
+4. **Virtual environment issues:**
+
+   ```bash
+   # Remove and recreate environment
+   rm -rf wine-env
+   python -m venv wine-env
+   source wine-env/bin/activate
+   pip install -r requirements.txt
+   ```
+
+5. **Port conflicts:**
    ```bash
    streamlit run dashboard.py --server.port 8502
    ```
+
+**Environment Verification:**
+
+```bash
+# Check if environment is active
+echo $VIRTUAL_ENV  # Should show path to wine-env
+
+# Check Python location
+which python  # Should point to wine-env/bin/python
+
+# Check installed packages
+pip list
+```
 
 ## 🔧 Configuration
 
@@ -168,9 +260,15 @@ wine_lexicon = {
 
 1. Fork the project
 2. Create feature branch
-3. Make changes
-4. Test thoroughly
-5. Submit pull request
+3. **Setup development environment:**
+   ```bash
+   python -m venv wine-env
+   source wine-env/bin/activate
+   pip install -r requirements.txt
+   ```
+4. Make changes
+5. Test thoroughly
+6. Submit pull request
 
 ## 📄 License
 
@@ -181,4 +279,3 @@ MIT License - see LICENSE file for details.
 **Made with ❤️ for wine enthusiasts and data scientists**
 
 🍷 **Cheers to data-driven wine insights!** 🥂
-# wine-sentiment-analysis
