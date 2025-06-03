@@ -1,2 +1,0 @@
-total_reviews,avg_original_polarity,avg_enhanced_polarity,impacted_reviews,impact_percentage,wine_terms_found,most_common_varietal,most_common_wine_type,positive_sentiment_pct,negative_sentiment_pct,neutral_sentiment_pct
-377313,0.15993255670326453,0.1949985469688192,371153,98.36740319045461,143,Pinot Noir,Tinto,69.63687972585095,5.367162011380472,24.99595826276858
