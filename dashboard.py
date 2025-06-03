@@ -216,11 +216,11 @@ def create_modern_donut_chart(df, column, title, colors=None):
         ),
         showlegend=True,
         legend=dict(
-            orientation="h",           # Horizontal na parte inferior
-            yanchor="top",            # Ancorar no topo da legenda
-            y=-0.1,                   # Posicionar abaixo do gráfico
-            xanchor="center",         # Centralizar horizontalmente
-            x=0.5,                    # Posição central
+            orientation="h",        
+            yanchor="top",          
+            y=-0.1,                
+            xanchor="center",       
+            x=0.5,                   
             bordercolor="rgba(0,0,0,0.1)",
             borderwidth=1,
             font=dict(size=10),
@@ -228,16 +228,16 @@ def create_modern_donut_chart(df, column, title, colors=None):
             itemdoubleclick="toggle",
             # Configurações para layout horizontal
             itemsizing="constant",
-            itemwidth=80,             # Largura dos itens na horizontal
+            itemwidth=80,           
             traceorder="normal"
         ),
-        height=420,                   # Altura aumentada para acomodar legenda em baixo
+        height=420,                   #
         # Margens ajustadas para legenda inferior
         margin=dict(
-            t=50,    # Top
-            b=80,    # Bottom aumentado para legenda
-            l=20,    # Left
-            r=20     # Right reduzido
+            t=50,    
+            b=80,    
+            l=20,    
+            r=20    
         ),
         autosize=True,
         font=dict(size=11),
