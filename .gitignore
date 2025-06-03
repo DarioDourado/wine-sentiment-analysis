@@ -9,37 +9,13 @@ __pycache__/
 *$py.class
 *.so
 .Python
-.conda
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# Virtual Environments
-# -----------------------------------------------------------------------------
-.env
-.venv
 env/
 venv/
-ENV/
-env.bak/
-venv.bak/
-wine-analysis-env/
-wine-sentiment-env/
-wine-env/
+.venv/
+
+# Jupyter Notebooks
+# -----------------------------------------------------------------------------
+.ipynb_checkpoints
 
 # IDE & Editors
 # -----------------------------------------------------------------------------
@@ -50,62 +26,6 @@ wine-env/
 *~
 .DS_Store
 Thumbs.db
-
-# Jupyter Notebooks
-# -----------------------------------------------------------------------------
-.ipynb_checkpoints
-*.ipynb
-
-# Data Files Strategy
-# -----------------------------------------------------------------------------
-# Keep data folder structure but ignore large processed files
-data/*_processed.csv
-data/*_large.csv
-data/cache/
-data/temp/
-.csv
-
-# But KEEP these important data files
-!data/
-!data/.gitkeep
-!data/avaliacao_vinhos.csv
-!data/wine_reviews.csv
-!data/sample_*.csv
-
-# Other data formats to ignore (except sample files)
-*.xlsx
-*.parquet
-*.pkl
-*.pickle
-
-# But keep essential project files
-!requirements.txt
-!translation/*.json
-!README.md
-
-# Generated Output Files (from analysis)
-# -----------------------------------------------------------------------------
-# Large generated datasets
-data/wine_sentiment_data_*.csv
-data/wine_analysis_summary_*.csv
-data/processed_reviews.json
-data/processed_*
-
-# Other output folders
-output/
-results/
-exports/
-
-# Generated visualizations
-imagens/
-images/
-plots/
-charts/
-*.png
-*.jpg
-*.jpeg
-*.svg
-*.pdf
 
 # Logs and temporary files
 # -----------------------------------------------------------------------------
@@ -191,6 +111,7 @@ sentiment_cache/
 # User-specific configuration
 config.local.py
 settings.local.py
+config.local.json
 
 # Database files (if using SQLite)
 *.db
