@@ -1,23 +1,23 @@
 {
-  "main_title": "🍷 Dashboard Analítico de Vinhos",
-  "main_subtitle": "Análise Avançada de Sentimento com Insights Específicos de Vinhos",
-  "main_description": "Análise TextBlob Aprimorada | Filtragem em Tempo Real | Visualizações Interativas",
+  "main_title": "🍷 Dashboard de Análise de Vinhos",
+  "main_subtitle": "Análise Avançada de Sentimentos em Avaliações de Vinhos",
+  "main_description": "Análise abrangente usando técnicas de NLP e vocabulário específico de vinhos",
 
   "filters": {
-    "title": "🔧 Filtros Avançados",
-    "reset": "🔄 Resetar Todos os Filtros",
+    "title": "🔍 Filtros Avançados",
+    "reset": "🔄 Limpar Todos os Filtros",
     "wine_type": "🍷 Tipo de Vinho",
-    "wine_type_help": "Filtrar por tipo de vinho (Tinto, Branco, Rosé, etc.)",
-    "sentiment_category": "😊 Categoria de Sentimento",
-    "sentiment_help": "Filtrar por resultado da análise de sentimento",
+    "wine_type_help": "Filtrar por tipo de vinho (Tinto, Branco, etc.)",
+    "sentiment_category": "😊 Sentimento",
+    "sentiment_help": "Filtrar por categoria de sentimento",
     "country": "🌍 País",
     "country_help": "Filtrar por país de origem do vinho",
-    "polarity_range": "📈 Intervalo de Polaridade",
-    "polarity_help": "Filtrar por pontuação de polaridade do sentimento",
-    "rating_range": "⭐ Intervalo de Classificação",
-    "rating_help": "Filtrar por classificação do vinho",
-    "wine_terms": "🍇 Termos de Vinho Encontrados",
-    "wine_terms_help": "Filtrar por número de termos específicos de vinho encontrados",
+    "polarity_range": "📊 Intervalo de Sentimento",
+    "polarity_help": "Filtrar por pontuação de polaridade",
+    "rating_range": "⭐ Intervalo de Rating",
+    "rating_help": "Filtrar por rating do vinho",
+    "wine_terms": "🍇 Termos de Vinho",
+    "wine_terms_help": "Filtrar por número de termos de vinho encontrados",
     "filtered_dataset": "📊 Dataset Filtrado",
     "records": "Registos",
     "percent_total": "% do Total"
@@ -30,31 +30,41 @@
   },
 
   "metrics": {
-    "title": "📊 Indicadores-Chave de Performance",
-    "total_reviews": "🍷 Total de Avaliações",
-    "avg_sentiment": "😊 Sentimento Médio",
-    "positive_percent": "👍 % Positivo",
-    "wine_terms_metric": "🍇 Termos de Vinho",
-    "wine_types_metric": "🍷 Tipos de Vinho"
+    "title": "📊 Métricas Principais",
+    "total_reviews": "Total de Avaliações",
+    "avg_sentiment": "Sentimento Médio",
+    "positive_percent": "% Positivo",
+    "wine_terms_metric": "Termos de Vinho",
+    "wine_types_metric": "Tipos de Vinho"
   },
 
   "visualizations": {
-    "title": "📈 Visualizações Interativas",
-    "sentiment_distribution": "😊 Distribuição de Sentimento",
-    "polarity_comparison": "📈 Comparação de Análise de Polaridade",
+    "title": "📈 Visualizações de Dados",
+    "sentiment_distribution": "Distribuição de Sentimentos",
     "original_textblob": "TextBlob Original",
     "enhanced_analysis": "Análise Aprimorada",
-    "wine_type_analysis": "🍷 Análise por Tipo de Vinho",
-    "wine_type_distribution": "🍷 Distribuição por Tipo de Vinho",
-    "avg_sentiment_wine_type": "📊 Sentimento Médio por Tipo de Vinho",
-    "geographic_analysis": "🌍 Análise Geográfica",
-    "top_countries_count": "🌍 Top Países por Número de Avaliações",
-    "top_countries_sentiment": "📊 Top Países por Sentimento",
-    "varietal_analysis": "🍇 Análise de Varietais",
-    "top_varietals_count": "🍇 Top Varietais por Contagem",
-    "top_varietals_sentiment": "📊 Top Varietais por Sentimento",
-    "rating_sentiment_correlation": "⭐ Correlação entre Classificação e Sentimento",
-    "rating_vs_sentiment": "⭐ Classificação vs Sentimento Aprimorado (Tamanho = Termos de Vinho Encontrados)"
+    "polarity_comparison": "Comparação de Polaridade",
+    "wine_type_analysis": "Análise por Tipo de Vinho",
+    "wine_type_distribution": "Distribuição de Tipos de Vinho",
+    "avg_sentiment_wine_type": "Sentimento Médio por Tipo de Vinho",
+    "geographic_analysis": "Análise Geográfica",
+    "top_countries_count": "Top Países por Número de Avaliações",
+    "top_countries_sentiment": "Top Países por Sentimento",
+    "varietal_analysis": "Análise de Castas",
+    "top_varietals_count": "Top Castas por Contagem",
+    "top_varietals_sentiment": "Top Castas por Sentimento",
+    "rating_sentiment_correlation": "Rating vs Sentimento",
+    "rating_vs_sentiment": "Correlação Rating vs Sentimento",
+    "wine_terms_distribution": "Distribuição de Termos de Vinho",
+    "terms_found": "Termos de Vinho Encontrados",
+    "review_count": "Contagem de Avaliações",
+    "price_quality_correlation": "Correlação Preço vs Qualidade",
+    "rating_histogram": "Histograma de Ratings",
+    "rating_by_sentiment": "Rating por Sentimento",
+    "rating_analysis": "Análise de Ratings",
+    "wordcloud_analysis": "Análise de Nuvem de Palavras",
+    "advanced_nlp_analysis": "Análise NLP Avançada",
+    "advanced_analysis": "Análise Avançada"
   },
 
   "data_explorer": {
@@ -70,7 +80,7 @@
   },
 
   "insights": {
-    "title": "💡 Insights e Estatísticas",
+    "title": "🔍 Insights dos Dados",
     "dataset_overview": "📊 Visão Geral do Dataset",
     "total_records": "Total de Registos",
     "memory_usage": "Uso de Memória",
@@ -84,10 +94,10 @@
   },
 
   "messages": {
-    "loading_data": "🔄 A carregar dados dos vinhos...",
+    "loading_data": "A carregar dados de vinhos...",
     "data_loaded": "✅ Carregados com sucesso {count:,} avaliações de vinhos de: `{file}`",
-    "no_data": "❌ Nenhum dado encontrado! Execute primeiro a análise principal: `python AS-TG-vinhos.py`",
-    "no_data_filters": "⚠️ Nenhum dado corresponde aos filtros selecionados. Ajuste os critérios."
+    "no_data": "❌ Nenhum dado de vinho encontrado!",
+    "no_data_filters": "❌ Nenhum dado corresponde aos filtros atuais!"
   },
 
   "footer": {
@@ -97,5 +107,9 @@
 
   "common": {
     "all": "Todos"
+  },
+
+  "advanced": {
+    "title": "Análise NLP Avançada"
   }
 }

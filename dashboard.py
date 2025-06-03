@@ -151,12 +151,42 @@ def load_wine_data():
     
     return pd.DataFrame(), None
 
+@st.cache_data(show_spinner=False)
+def load_advanced_analysis_data():
+    """Carregar dados de análise avançada se disponíveis"""
+    try:
+        # Tentar carregar dados de análise avançada
+        summary_files = [
+            'data/wine_analysis_summary_en.csv',
+            'wine_analysis_summary_en.csv'
+        ]
+        
+        for file_path in summary_files:
+            if os.path.exists(file_path):
+                summary_df = pd.read_csv(file_path)
+                return summary_df
+        
+        return pd.DataFrame()
+    except Exception:
+        return pd.DataFrame()
+
+@st.cache_data(show_spinner=False)
+def check_nlp_analysis_available():
+    """Verificar se análise NLP avançada está disponível"""
+    # Verificar se existem arquivos de análise avançada
+    advanced_files = [
+        'imagens/10_wordcloud_analysis.png',
+        'imagens/11_advanced_nlp_analysis.png'
+    ]
+    
+    return any(os.path.exists(f) for f in advanced_files)
+
 # ====================================================================
 # FUNÇÕES DE VISUALIZAÇÃO
 # ====================================================================
 
 def create_modern_donut_chart(df, column, title, colors=None):
-    """Criar gráfico donut moderno"""
+    """Criar gráfico donut moderno com legendas na parte inferior"""
     if column not in df.columns:
         return None
     
@@ -171,26 +201,60 @@ def create_modern_donut_chart(df, column, title, colors=None):
         hole=0.6,
         marker_colors=colors[:len(value_counts)],
         textinfo='label+percent',
-        textfont_size=12,
-        hovertemplate='<b>%{label}</b><br>Count: %{value}<br>Percentage: %{percent}<extra></extra>'
+        textfont_size=11,
+        textposition='auto',
+        hovertemplate='<b>%{label}</b><br>Count: %{value}<br>Percentage: %{percent}<extra></extra>',
+        pull=[0.01] * len(value_counts)  # Pequena separação entre fatias
     )])
     
     fig.update_layout(
         title=dict(
             text=title,
             x=0.5,
-            font=dict(size=18, color='#2c3e50')
+            font=dict(size=16, color='#2c3e50'),
+            pad=dict(t=10, b=5)
         ),
         showlegend=True,
         legend=dict(
-            orientation="v",
-            yanchor="middle",
-            y=0.5,
-            xanchor="left",
-            x=1.02
+            orientation="h",           # Horizontal na parte inferior
+            yanchor="top",            # Ancorar no topo da legenda
+            y=-0.1,                   # Posicionar abaixo do gráfico
+            xanchor="center",         # Centralizar horizontalmente
+            x=0.5,                    # Posição central
+            bordercolor="rgba(0,0,0,0.1)",
+            borderwidth=1,
+            font=dict(size=10),
+            itemclick="toggleothers",
+            itemdoubleclick="toggle",
+            # Configurações para layout horizontal
+            itemsizing="constant",
+            itemwidth=80,             # Largura dos itens na horizontal
+            traceorder="normal"
         ),
-        height=400,
-        margin=dict(t=60, b=20, l=20, r=120)
+        height=420,                   # Altura aumentada para acomodar legenda em baixo
+        # Margens ajustadas para legenda inferior
+        margin=dict(
+            t=50,    # Top
+            b=80,    # Bottom aumentado para legenda
+            l=20,    # Left
+            r=20     # Right reduzido
+        ),
+        autosize=True,
+        font=dict(size=11),
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)'
+    )
+    
+    # Ajustar o domain para dar espaço à legenda inferior
+    fig.update_traces(
+        domain=dict(
+            x=[0.1, 0.9],    # Centralizar horizontalmente
+            y=[0.15, 0.85]   # Dar espaço para legenda em baixo
+        ),
+        textfont_size=11,
+        marker=dict(
+            line=dict(color='#FFFFFF', width=1.5)
+        )
     )
     
     return fig
@@ -337,6 +401,167 @@ def create_scatter_plot(df, x_col, y_col, color_col, title):
     )
     
     return fig
+
+def create_word_frequency_chart(df, translations):
+    """Criar gráfico de frequência de palavras de vinho"""
+    if 'wine_terms_found' not in df.columns:
+        return None
+    
+    # Análise de distribuição de termos
+    terms_dist = df['wine_terms_found'].value_counts().sort_index()
+    
+    fig = px.bar(
+        x=terms_dist.index,
+        y=terms_dist.values,
+        title=get_text(translations, 'visualizations.wine_terms_distribution'),
+        labels={
+            'x': get_text(translations, 'visualizations.terms_found'),
+            'y': get_text(translations, 'visualizations.review_count')
+        },
+        color=terms_dist.values,
+        color_continuous_scale='Viridis'
+    )
+    
+    fig.update_layout(
+        title=dict(x=0.5, font=dict(size=18, color='#2c3e50')),
+        height=400,
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)'
+    )
+    
+    return fig
+
+def create_price_quality_correlation(df, translations):
+    """Criar análise de correlação preço vs qualidade"""
+    if 'price' not in df.columns or 'rating' not in df.columns:
+        return None
+    
+    # Filtrar dados válidos
+    valid_data = df.dropna(subset=['price', 'rating', 'enhanced_polarity'])
+    
+    if len(valid_data) < 10:
+        return None
+    
+    # Calcular correlação
+    correlation = valid_data['price'].corr(valid_data['rating'])
+    
+    fig = px.scatter(
+        valid_data,
+        x='price',
+        y='rating',
+        color='enhanced_polarity',
+        size='wine_terms_found',
+        size_max=15,
+        title=f"{get_text(translations, 'visualizations.price_quality_correlation')} (r={correlation:.3f})",
+        color_continuous_scale='RdYlGn',
+        hover_data=['wine_type', 'varietal'] if 'wine_type' in df.columns else None
+    )
+    
+    # Adicionar linha de tendência
+    try:
+        z = np.polyfit(valid_data['price'], valid_data['rating'], 1)
+        p = np.poly1d(z)
+        fig.add_trace(go.Scatter(
+            x=valid_data['price'],
+            y=p(valid_data['price']),
+            mode='lines',
+            name='Trend Line',
+            line=dict(color='red', dash='dash', width=2)
+        ))
+    except:
+        pass
+    
+    fig.update_layout(
+        title=dict(x=0.5, font=dict(size=18, color='#2c3e50')),
+        height=500,
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)'
+    )
+    
+    return fig
+
+def create_rating_distribution_advanced(df, translations):
+    """Criar análise avançada de distribuição de ratings"""
+    if 'rating' not in df.columns:
+        return None
+    
+    valid_ratings = df['rating'].dropna()
+    
+    if len(valid_ratings) == 0:
+        return None
+    
+    fig = make_subplots(
+        rows=1, cols=2,
+        subplot_titles=(
+            get_text(translations, 'visualizations.rating_histogram'),
+            get_text(translations, 'visualizations.rating_by_sentiment')
+        ),
+        specs=[[{'secondary_y': False}, {'secondary_y': False}]]
+    )
+    
+    # Histograma de ratings
+    fig.add_trace(
+        go.Histogram(
+            x=valid_ratings,
+            name='Rating Distribution',
+            marker_color='#3498db',
+            opacity=0.7,
+            nbinsx=20
+        ),
+        row=1, col=1
+    )
+    
+    # Box plot por categoria de sentimento
+    if 'sentiment_category' in df.columns:
+        for i, category in enumerate(['Positive', 'Neutral', 'Negative']):
+            if category in df['sentiment_category'].values:
+                category_ratings = df[df['sentiment_category'] == category]['rating'].dropna()
+                if len(category_ratings) > 0:
+                    colors = {'Positive': '#2ecc71', 'Neutral': '#95a5a6', 'Negative': '#e74c3c'}
+                    fig.add_trace(
+                        go.Box(
+                            y=category_ratings,
+                            name=category,
+                            marker_color=colors[category],
+                            x=[category] * len(category_ratings)
+                        ),
+                        row=1, col=2
+                    )
+    
+    fig.update_layout(
+        title_text=get_text(translations, 'visualizations.rating_analysis'),
+        title_x=0.5,
+        title_font=dict(size=20, color='#2c3e50'),
+        height=400,
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)'
+    )
+    
+    return fig
+
+def display_advanced_images(translations):
+    """Exibir imagens de análise avançada se disponíveis"""
+    advanced_images = {
+        'imagens/10_wordcloud_analysis.png': get_text(translations, 'visualizations.wordcloud_analysis'),
+        'imagens/11_advanced_nlp_analysis.png': get_text(translations, 'visualizations.advanced_nlp_analysis')
+    }
+    
+    available_images = [(path, title) for path, title in advanced_images.items() if os.path.exists(path)]
+    
+    if available_images:
+        st.markdown(f'<h3 class="section-header">{get_text(translations, "visualizations.advanced_analysis")}</h3>', unsafe_allow_html=True)
+        
+        for i in range(0, len(available_images), 2):
+            cols = st.columns(2)
+            
+            for j, col in enumerate(cols):
+                if i + j < len(available_images):
+                    image_path, image_title = available_images[i + j]
+                    with col:
+                        st.markdown(f"**{image_title}**")
+                        st.image(image_path, use_column_width=True)
+    
+    return len(available_images) > 0
 
 # ====================================================================
 # INTERFACE PRINCIPAL
@@ -513,20 +738,21 @@ def main():
         return
     
     # ================================================================
-    # MÉTRICAS PRINCIPAIS
+    # MÉTRICAS PRINCIPAIS EXPANDIDAS
     # ================================================================
-    
+
     st.markdown(f'<h2 class="section-header">{get_text(translations, "metrics.title")}</h2>', unsafe_allow_html=True)
-    
+
+    # Row 1: Métricas básicas
     col1, col2, col3, col4, col5 = st.columns(5)
-    
+
     with col1:
         st.metric(
             get_text(translations, 'metrics.total_reviews'),
             f"{len(df):,}",
             delta=f"{len(df) - len(original_df):+,}" if len(df) != len(original_df) else None
         )
-    
+
     with col2:
         if 'enhanced_polarity' in df.columns:
             avg_sentiment = df['enhanced_polarity'].mean()
@@ -537,7 +763,7 @@ def main():
                 f"{avg_sentiment:.3f}",
                 delta=delta
             )
-    
+
     with col3:
         if 'sentiment_category' in df.columns:
             positive_pct = (df['sentiment_category'] == 'Positive').mean() * 100
@@ -545,15 +771,17 @@ def main():
                 get_text(translations, 'metrics.positive_percent'),
                 f"{positive_pct:.1f}%"
             )
-    
+
     with col4:
         if 'wine_terms_found' in df.columns:
             total_terms = df['wine_terms_found'].sum()
+            avg_terms = df['wine_terms_found'].mean()
             st.metric(
                 get_text(translations, 'metrics.wine_terms_metric'),
-                f"{total_terms:,}"
+                f"{total_terms:,}",
+                delta=f"Avg: {avg_terms:.1f}"
             )
-    
+
     with col5:
         if 'wine_type' in df.columns:
             unique_types = df['wine_type'].nunique()
@@ -561,6 +789,50 @@ def main():
                 get_text(translations, 'metrics.wine_types_metric'),
                 f"{unique_types}"
             )
+
+    # Row 2: Métricas avançadas
+    if check_nlp_analysis_available():
+        st.markdown("### 🔬 Advanced NLP Metrics")
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            if 'rating' in df.columns:
+                valid_ratings = df['rating'].dropna()
+                if len(valid_ratings) > 0:
+                    st.metric(
+                        "📊 Avg Rating",
+                        f"{valid_ratings.mean():.1f}",
+                        delta=f"Range: {valid_ratings.min():.0f}-{valid_ratings.max():.0f}"
+                    )
+        
+        with col2:
+            if 'price' in df.columns:
+                valid_prices = df['price'].dropna()
+                if len(valid_prices) > 0:
+                    st.metric(
+                        "💰 Avg Price",
+                        f"${valid_prices.mean():.0f}",
+                        delta=f"Range: ${valid_prices.min():.0f}-${valid_prices.max():.0f}"
+                    )
+        
+        with col3:
+            if 'wine_boost' in df.columns:
+                boosted_reviews = df[df['wine_boost'] != 0]
+                if len(boosted_reviews) > 0:
+                    st.metric(
+                        "🚀 Boosted Reviews",
+                        f"{len(boosted_reviews):,}",
+                        delta=f"{len(boosted_reviews)/len(df)*100:.1f}% of total"
+                    )
+        
+        with col4:
+            if 'country' in df.columns:
+                unique_countries = df['country'].nunique()
+                st.metric(
+                    "🌍 Countries",
+                    f"{unique_countries}",
+                    delta=f"Most: {df['country'].value_counts().index[0]}"
+                )
     
     # ================================================================
     # GRÁFICOS PRINCIPAIS
@@ -676,156 +948,387 @@ def main():
                 if fig_varietal_sentiment:
                     st.plotly_chart(fig_varietal_sentiment, use_container_width=True)
     
-    # Row 5: Rating vs Sentiment Correlation
-    if 'rating' in df.columns and 'enhanced_polarity' in df.columns:
-        st.markdown(f'<h3 class="section-header">{get_text(translations, "visualizations.rating_sentiment_correlation")}</h3>', unsafe_allow_html=True)
-        
-        fig_scatter = create_scatter_plot(
-            df,
-            'rating',
-            'enhanced_polarity',
-            'wine_terms_found',
-            get_text(translations, 'visualizations.rating_vs_sentiment')
-        )
-        if fig_scatter:
-            st.plotly_chart(fig_scatter, use_container_width=True)
+    # Row 5: Rating vs Sentiment Correlation - REMOVIDO
+    # if 'rating' in df.columns and 'enhanced_polarity' in df.columns:
+    #     st.markdown(f'<h3 class="section-header">{get_text(translations, "visualizations.rating_sentiment_correlation")}</h3>', unsafe_allow_html=True)
+    #     
+    #     fig_scatter = create_scatter_plot(
+    #         df,
+    #         'rating',
+    #         'enhanced_polarity',
+    #         'wine_terms_found',
+    #         get_text(translations, 'visualizations.rating_vs_sentiment')
+    #     )
+    #     if fig_scatter:
+    #         st.plotly_chart(fig_scatter, use_container_width=True)
     
     # ================================================================
-    # DATA EXPLORER
+    # ANÁLISE AVANÇADA NLP (REFORMULADA)
+    # ================================================================
+
+    if check_nlp_analysis_available():
+        st.markdown(f'<h2 class="section-header">🔬 {get_text(translations, "advanced.title", default="Advanced NLP Analysis")}</h2>', unsafe_allow_html=True)
+        
+        # Tabs para diferentes análises
+        tab1, tab2, tab3, tab4 = st.tabs([
+            "📊 Wine Terms Analysis",
+            "💰 Price vs Quality",
+            "⭐ Rating Distribution", 
+            "🖼️ Advanced Charts"
+        ])
+        
+        with tab1:
+            st.markdown("#### 🍇 Wine Terms Impact Analysis")
+            
+            if 'wine_terms_found' in df.columns:
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    # Gráfico de distribuição de termos
+                    fig_terms = create_word_frequency_chart(df, translations)
+                    if fig_terms:
+                        st.plotly_chart(fig_terms, use_container_width=True)
+                    
+                    # Estatísticas principais
+                    st.markdown("##### 📈 Key Statistics")
+                    terms_stats = {
+                        "Total wine terms": df['wine_terms_found'].sum(),
+                        "Average per review": f"{df['wine_terms_found'].mean():.2f}",
+                        "Reviews with terms": f"{(df['wine_terms_found'] > 0).sum():,} ({(df['wine_terms_found'] > 0).mean()*100:.1f}%)",
+                        "Maximum in one review": df['wine_terms_found'].max()
+                    }
+                    
+                    for stat, value in terms_stats.items():
+                        st.metric(stat, value)
+                
+                with col2:
+                    # Análise de impacto comparativo
+                    if 'wine_boost' in df.columns and 'enhanced_polarity' in df.columns:
+                        st.markdown("##### 🚀 Sentiment Impact Comparison")
+                        
+                        with_terms = df[df['wine_terms_found'] > 0]
+                        without_terms = df[df['wine_terms_found'] == 0]
+                        
+                        if len(with_terms) > 0 and len(without_terms) > 0:
+                            # Criar comparação visual
+                            comparison_data = pd.DataFrame({
+                                'Category': ['With Wine Terms', 'Without Wine Terms'],
+                                'Count': [len(with_terms), len(without_terms)],
+                                'Avg_Sentiment': [with_terms['enhanced_polarity'].mean(), without_terms['enhanced_polarity'].mean()],
+                                'Avg_Boost': [with_terms['wine_boost'].mean() if 'wine_boost' in with_terms.columns else 0, 0]
+                            })
+                            
+                            fig_impact = px.bar(
+                                comparison_data,
+                                x='Category',
+                                y='Avg_Sentiment',
+                                color='Avg_Boost',
+                                title="Sentiment Enhancement by Wine Terms",
+                                color_continuous_scale='Viridis',
+                                text='Avg_Sentiment'
+                            )
+                            
+                            fig_impact.update_traces(texttemplate='%{text:.3f}', textposition='outside')
+                            fig_impact.update_layout(
+                                title=dict(x=0.5, font=dict(size=16, color='#2c3e50')),
+                                height=400,
+                                plot_bgcolor='rgba(0,0,0,0)',
+                                paper_bgcolor='rgba(0,0,0,0)'
+                            )
+                            
+                            st.plotly_chart(fig_impact, use_container_width=True)
+                            
+                            # Tabela de comparação
+                            impact_summary = pd.DataFrame({
+                                'Metric': ['Reviews Count', 'Avg Sentiment', 'Sentiment Boost', 'Std Deviation'],
+                                'With Wine Terms': [
+                                    f"{len(with_terms):,}",
+                                    f"{with_terms['enhanced_polarity'].mean():.3f}",
+                                    f"{with_terms['wine_boost'].mean():.3f}" if 'wine_boost' in with_terms.columns else "0.000",
+                                    f"{with_terms['enhanced_polarity'].std():.3f}"
+                                ],
+                                'Without Wine Terms': [
+                                    f"{len(without_terms):,}",
+                                    f"{without_terms['enhanced_polarity'].mean():.3f}",
+                                    "0.000",
+                                    f"{without_terms['enhanced_polarity'].std():.3f}"
+                                ]
+                            })
+                            
+                            st.dataframe(impact_summary, use_container_width=True)
+        
+        with tab2:
+            st.markdown("#### 💎 Price vs Quality Correlation Analysis")
+            
+            # Análise preço vs qualidade
+            fig_price_quality = create_price_quality_correlation(df, translations)
+            if fig_price_quality:
+                st.plotly_chart(fig_price_quality, use_container_width=True)
+                
+                # Estatísticas de correlação
+                if 'price' in df.columns and 'rating' in df.columns:
+                    valid_data = df.dropna(subset=['price', 'rating'])
+                    if len(valid_data) >= 10:
+                        correlation = valid_data['price'].corr(valid_data['rating'])
+                        
+                        col1, col2, col3, col4 = st.columns(4)
+                        
+                        with col1:
+                            st.metric("📊 Correlation", f"{correlation:.3f}")
+                        
+                        with col2:
+                            interpretation = ""
+                            color = ""
+                            if correlation > 0.5:
+                                interpretation = "Strong +"
+                                color = "🟢"
+                            elif correlation > 0.3:
+                                interpretation = "Moderate"
+                                color = "🟡"
+                            elif correlation > 0.1:
+                                interpretation = "Weak"
+                                color = "🟠"
+                            else:
+                                interpretation = "None"
+                                color = "🔴"
+                            st.metric("🎯 Strength", f"{color} {interpretation}")
+                        
+                        with col3:
+                            st.metric("📈 Data Points", f"{len(valid_data):,}")
+                        
+                        with col4:
+                            price_range = valid_data['price'].max() - valid_data['price'].min()
+                            st.metric("💰 Price Range", f"${price_range:.0f}")
+                        
+                        # Análise por categoria de preço
+                        if len(valid_data) > 50:
+                            st.markdown("##### 💎 Price Category Analysis")
+                            
+                            # Criar quartis de preço
+                            valid_data['price_quartile'] = pd.qcut(valid_data['price'], 4, labels=['Budget', 'Mid-Range', 'Premium', 'Luxury'])
+                            
+                            price_analysis = valid_data.groupby('price_quartile').agg({
+                                'rating': ['count', 'mean', 'std'],
+                                'enhanced_polarity': ['mean', 'std'],
+                                'price': ['mean', 'min', 'max']
+                            }).round(3)
+                            
+                            # Flatten column names
+                            price_analysis.columns = ['_'.join(col).strip() for col in price_analysis.columns]
+                            price_analysis = price_analysis.reset_index()
+                            
+                            st.dataframe(price_analysis, use_container_width=True)
+            else:
+                st.info("💡 Price vs Quality analysis requires both price and rating columns in the dataset.")
+        
+        with tab3:
+            st.markdown("#### ⭐ Advanced Rating Distribution Analysis")
+            
+            # Distribuição de ratings avançada
+            fig_rating_dist = create_rating_distribution_advanced(df, translations)
+            if fig_rating_dist:
+                st.plotly_chart(fig_rating_dist, use_container_width=True)
+            
+            # Análise detalhada por categoria de sentimento
+            if 'rating' in df.columns and 'sentiment_category' in df.columns:
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    st.markdown("##### 📊 Rating Statistics by Sentiment")
+                    rating_analysis = df.groupby('sentiment_category')['rating'].agg(['count', 'mean', 'std', 'min', 'max']).round(2)
+                    rating_analysis.columns = ['Count', 'Mean', 'Std Dev', 'Min', 'Max']
+                    st.dataframe(rating_analysis, use_container_width=True)
+                
+                with col2:
+                    # Distribuição percentual
+                    if 'wine_type' in df.columns:
+                        st.markdown("##### 🍷 Rating Distribution by Wine Type")
+                        wine_rating = df.groupby(['wine_type', 'sentiment_category']).size().unstack(fill_value=0)
+                        wine_rating_pct = wine_rating.div(wine_rating.sum(axis=1), axis=0) * 100
+                        st.dataframe(wine_rating_pct.round(1), use_container_width=True)
+        
+        with tab4:
+            st.markdown("#### 🖼️ Generated Analysis Charts")
+            
+            # Verificar e exibir imagens de análise avançada
+            advanced_images = {
+                'imagens/10_wordcloud_analysis.png': {
+                    'title': '☁️ Word Cloud Comparative Analysis',
+                    'description': 'Word clouds comparing vocabulary in high-rated vs low-rated wines, and positive vs negative sentiment reviews.'
+                },
+                'imagens/11_advanced_nlp_analysis.png': {
+                    'title': '🔬 Advanced NLP Insights',
+                    'description': 'Comprehensive analysis including top words associated with quality ratings, price correlations, and sentiment distributions.'
+                }
+            }
+            
+            images_found = 0
+            for image_path, image_info in advanced_images.items():
+                if os.path.exists(image_path):
+                    st.markdown(f"##### {image_info['title']}")
+                    st.markdown(f"*{image_info['description']}*")
+                    st.image(image_path, use_column_width=True)
+                    st.markdown("---")
+                    images_found += 1
+            
+            if images_found == 0:
+                st.info("""
+                🖼️ **Advanced analysis charts will appear here after running the full analysis.**
+                
+                **To generate these charts:**
+                1. Run `python AS-TG-vinhos.py`
+                2. Choose option 2 (Terminal Visualizations)
+                3. Charts will be automatically saved and displayed here
+                
+                **Generated charts include:**
+                - Word cloud comparisons (high vs low ratings)
+                - Advanced NLP analysis with vocabulary insights
+                - Price vs quality correlation visualizations
+                - Wine term impact analysis
+                """)
+            else:
+                st.success(f"✅ {images_found} advanced analysis charts loaded successfully!")
+
+    else:
+        st.info("""
+        🔬 **Advanced NLP analysis not yet available.**
+        
+        Run the main analysis script first to unlock advanced features:
+        - Wine vocabulary analysis
+        - Price vs quality correlations  
+        - Rating prediction insights
+        - Word cloud visualizations
+        """)
+
+    # ================================================================
+    # INSIGHTS E ESTATÍSTICAS (REFORMULADO)
     # ================================================================
     
-    st.markdown(f'<h2 class="section-header">{get_text(translations, "data_explorer.title")}</h2>', unsafe_allow_html=True)
-    
-    # Column selector
-    available_cols = [col for col in df.columns if col not in ['wine_terms_list']]
-    default_cols = []
-    
-    # Priority columns
-    priority_cols = ['wine', 'winery', 'varietal', 'wine_type', 'country', 'enhanced_polarity', 'sentiment_category', 'rating']
-    for col in priority_cols:
-        if col in available_cols and len(default_cols) < 8:
-            default_cols.append(col)
-    
-    selected_cols = st.multiselect(
-        get_text(translations, 'data_explorer.select_columns'),
-        available_cols,
-        default=default_cols,
-        help=get_text(translations, 'data_explorer.select_columns_help')
-    )
-    
-    if selected_cols:
-        # Sorting options
-        col1, col2, col3 = st.columns([2, 1, 1])
-        
-        with col1:
-            sort_col = st.selectbox(
-                get_text(translations, 'data_explorer.sort_by'),
-                selected_cols,
-                index=0 if 'enhanced_polarity' not in selected_cols else selected_cols.index('enhanced_polarity')
-            )
-        
-        with col2:
-            sort_order = st.radio(
-                get_text(translations, 'data_explorer.order'), 
-                [get_text(translations, 'data_explorer.descending'), get_text(translations, 'data_explorer.ascending')], 
-                horizontal=True
-            )
-        
-        with col3:
-            sample_size = st.selectbox(
-                get_text(translations, 'data_explorer.show_rows'),
-                [50, 100, 250, 500, 1000],
-                index=1
-            )
-        
-        # Display filtered and sorted data
-        display_df = df[selected_cols].copy()
-        
-        if sort_order == get_text(translations, 'data_explorer.descending'):
-            display_df = display_df.sort_values(sort_col, ascending=False)
-        else:
-            display_df = display_df.sort_values(sort_col, ascending=True)
-        
-        # Format numeric columns
-        for col in display_df.columns:
-            if col == 'enhanced_polarity' and col in display_df.columns:
-                display_df[col] = display_df[col].round(3)
-            elif col == 'rating' and col in display_df.columns:
-                display_df[col] = display_df[col].round(1)
-        
-        st.dataframe(
-            display_df.head(sample_size),
-            use_container_width=True,
-            height=400
-        )
-        
-        # Download button
-        csv = display_df.head(sample_size).to_csv(index=False)
-        st.download_button(
-            label=get_text(translations, 'data_explorer.download_data'),
-            data=csv,
-            file_name=f'wine_analysis_filtered_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv',
-            mime='text/csv'
-        )
-    
-    # ================================================================
-    # INSIGHTS E ESTATÍSTICAS
-    # ================================================================
-    
-    st.markdown(f'<h2 class="section-header">{get_text(translations, "insights.title")}</h2>', unsafe_allow_html=True)
+    st.markdown(f'<h2 class="section-header">🔍 Data Insights</h2>', unsafe_allow_html=True)
     
     col1, col2 = st.columns(2)
     
     with col1:
-        st.markdown(f"""
+        st.markdown("""
         <div class="info-box">
-            <h4>{get_text(translations, 'insights.dataset_overview')}</h4>
+            <h4>📊 Dataset Overview</h4>
         </div>
         """, unsafe_allow_html=True)
         
-        insights_data = {
-            get_text(translations, 'insights.total_records'): f"{len(df):,}",
-            get_text(translations, 'insights.memory_usage'): f"{df.memory_usage(deep=True).sum() / 1024 / 1024:.1f} MB",
-            get_text(translations, 'insights.columns'): f"{len(df.columns)}",
-            get_text(translations, 'insights.data_types'): len(df.dtypes.unique())
-        }
+        # Métricas essenciais do dataset
+        col_a, col_b = st.columns(2)
         
-        for key, value in insights_data.items():
-            st.write(f"**{key}:** {value}")
-    
-    with col2:
-        st.markdown(f"""
-        <div class="info-box">
-            <h4>{get_text(translations, 'insights.analysis_summary')}</h4>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        if 'enhanced_polarity' in df.columns:
-            analysis_data = {
-                get_text(translations, 'insights.avg_polarity'): f"{df['enhanced_polarity'].mean():.3f}",
-                get_text(translations, 'insights.polarity_std'): f"{df['enhanced_polarity'].std():.3f}",
-                get_text(translations, 'insights.most_positive'): f"{df['enhanced_polarity'].max():.3f}",
-                get_text(translations, 'insights.most_negative'): f"{df['enhanced_polarity'].min():.3f}"
-            }
+        with col_a:
+            st.metric("Total Records", f"{len(df):,}")
+            st.metric("Columns", f"{len(df.columns)}")
             
-            for key, value in analysis_data.items():
-                st.write(f"**{key}:** {value}")
-    
+        with col_b:
+            st.metric("Memory Usage", f"{df.memory_usage(deep=True).sum() / 1024 / 1024:.1f} MB")
+            st.metric("Data Types", f"{len(df.dtypes.unique())}")
+
+    with col2:
+        st.markdown("""
+        <div class="info-box">
+            <h4>🔍 Data Quality Assessment</h4>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Verificações de qualidade
+        col_a, col_b = st.columns(2)
+        
+        with col_a:
+            missing_values = df.isnull().sum().sum()
+            st.metric("Missing Values", f"{missing_values:,}")
+            
+            duplicate_rows = df.duplicated().sum()
+            st.metric("Duplicate Rows", f"{duplicate_rows:,}")
+            
+        with col_b:
+            if 'enhanced_polarity' in df.columns:
+                outliers = len(df[(df['enhanced_polarity'] < -2) | (df['enhanced_polarity'] > 2)])
+                st.metric("Sentiment Outliers", f"{outliers:,}")
+            
+            if 'sentiment_category' in df.columns:
+                balance = df['sentiment_category'].value_counts()
+                most_common_pct = (balance.iloc[0] / len(df)) * 100
+                st.metric("Class Balance", f"{most_common_pct:.1f}% dominant")
+
+    # Resumo de insights principais
+    if 'enhanced_polarity' in df.columns and 'sentiment_category' in df.columns:
+        st.markdown("#### 💡 Key Insights")
+        
+        positive_pct = (df['sentiment_category'] == 'Positive').mean() * 100
+        avg_sentiment = df['enhanced_polarity'].mean()
+        
+        insights = []
+        
+        if positive_pct > 60:
+            insights.append("🟢 **Predominantly positive sentiment** - High wine quality indicators")
+        elif positive_pct > 40:
+            insights.append("🟡 **Balanced sentiment distribution** - Mixed quality reviews")
+        else:
+            insights.append("🔴 **Lower positive sentiment** - Quality concerns may exist")
+        
+        if 'wine_terms_found' in df.columns:
+            avg_terms = df['wine_terms_found'].mean()
+            if avg_terms > 3:
+                insights.append("🍇 **Rich wine vocabulary** - Expert-level reviews detected")
+            elif avg_terms > 1.5:
+                insights.append("🍇 **Moderate wine vocabulary** - Semi-professional reviews")
+            else:
+                insights.append("🍇 **Basic wine vocabulary** - Casual reviewer language")
+        
+        if 'rating' in df.columns and 'enhanced_polarity' in df.columns:
+            correlation = df[['rating', 'enhanced_polarity']].corr().iloc[0, 1]
+            if correlation > 0.5:
+                insights.append("📈 **Strong rating-sentiment correlation** - Consistent quality perception")
+            elif correlation > 0.3:
+                insights.append("📈 **Moderate rating-sentiment correlation** - Generally aligned reviews")
+            else:
+                insights.append("📈 **Weak rating-sentiment correlation** - Mixed review patterns")
+        
+        for insight in insights:
+            st.markdown(insight)
+
     # ================================================================
-    # FOOTER
+    # CONCLUSÃO SIMPLIFICADA
     # ================================================================
-    
+
+    st.markdown(f'<h2 class="section-header">🎯 Analysis Summary</h2>', unsafe_allow_html=True)
+
+    summary_col1, summary_col2 = st.columns(2)
+
+    with summary_col1:
+        st.markdown("""
+        ### 📋 What We Discovered
+        
+        This wine sentiment analysis reveals patterns in wine reviews through:
+        - **Enhanced sentiment analysis** with wine-specific vocabulary
+        - **Quality correlations** between ratings and sentiment
+        - **Geographic and varietal insights** 
+        - **Wine terminology impact** on review sentiment
+        """)
+
+    with summary_col2:
+        st.markdown("""
+        ### 🚀 Next Steps
+        
+        To expand this analysis:
+        - Run the main script for **advanced NLP features**
+        - Explore **price vs quality correlations**
+        - Generate **word cloud visualizations**
+        - Apply **machine learning models** for prediction
+        """)
+
+    # Informações do projeto
     st.markdown("---")
-    st.markdown(f"""
-    <div style='text-align: center; color: #7f8c8d; margin-top: 2rem;'>
-        <p>{get_text(translations, 'footer.text')}</p>
-        <p><em>{get_text(translations, 'footer.data_processed')} {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</em></p>
+    st.markdown("""
+    <div style="text-align: center; padding: 1rem; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px;">
+        <h4>🍷 Wine Sentiment Analysis Dashboard</h4>
+        <p>Desenvolvido por <strong>Dario Dourado</strong> e <strong>Renato Ruivo</strong></p>
+        <p><em>Sistemas Inteligentes - Análise Avançada de Sentimentos em Avaliações de Vinhos</em></p>
     </div>
     """, unsafe_allow_html=True)
-
-# ====================================================================
-# EXECUTAR APLICAÇÃO
-# ====================================================================
 
 if __name__ == "__main__":
     main()

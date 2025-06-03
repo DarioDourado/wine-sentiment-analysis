@@ -2,9 +2,25 @@ import pandas as pd
 import re
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib
+import matplotlib.font_manager as fm
 import seaborn as sns
 from textblob import TextBlob
 import os
+import platform 
+from collections import Counter
+import nltk
+from wordcloud import WordCloud
+NLP_AVAILABLE = True
+
+
+# Configure matplotlib to handle Unicode properly
+matplotlib.rcParams['font.sans-serif'] = ['Arial Unicode MS', 'DejaVu Sans', 'Liberation Sans']
+matplotlib.rcParams['axes.unicode_minus'] = False
+
+# For macOS specifically
+if platform.system() == 'Darwin':
+    matplotlib.rcParams['font.family'] = ['Apple Symbols', 'Helvetica', 'Arial']
 
 # ====================================================================
 # SECTION 1: CARREGAR DADOS & LIMPEZA DE CARACTERES ESPECIAIS
@@ -992,6 +1008,23 @@ def generate_terminal_visualizations(data_clean, stats, wine_lexicon):
     generate_wine_type_analysis_chart(data_clean, stats, wine_lexicon, output_dir)
     
     # ================================================================
+    # 10-11. ANÁLISE NLP AVANÇADA
+    # ================================================================
+    print("🔬 A executar análise NLP avançada...")
+    
+    # Análise de descritores por rating
+    descriptor_analysis = analyze_descriptors_by_rating(data_clean)
+    
+    # Análise de preço vs qualidade
+    price_analysis = analyze_price_quality_correlation(data_clean)
+    
+    # Gerar word clouds
+    generate_wordcloud_analysis(data_clean, descriptor_analysis)
+    
+    # Gerar gráficos avançados
+    generate_advanced_analysis_charts(data_clean, descriptor_analysis, price_analysis)
+    
+    # ================================================================
     # RESUMO FINAL ATUALIZADO
     # ================================================================
     print("\n" + "="*60)
@@ -1008,6 +1041,8 @@ def generate_terminal_visualizations(data_clean, stats, wine_lexicon):
     print("   7. 07_country_analysis.png")
     print("   8. 08_complete_dashboard.png")
     print("   9. 09_wine_type_analysis.png")
+    print("  10. 10_wordcloud_analysis.png")
+    print("  11. 11_advanced_nlp_analysis.png")
     print("="*60)
     
     return output_dir
@@ -1145,6 +1180,469 @@ def show_terminal_summary(data_clean, stats, summary_stats, wine_lexicon):
     print("🎯 ANÁLISE CONCLUÍDA COM SUCESSO!")
     print("🍷" * 70)
 
+def show_enhanced_terminal_summary(data_clean, stats, summary_stats, wine_lexicon, 
+                                  descriptor_analysis=None, price_analysis=None, nlp_available=True):
+    """Resumo aprimorado no terminal com análise NLP (sem gráficos)"""
+    
+    # Mostrar resumo básico primeiro
+    show_terminal_summary(data_clean, stats, summary_stats, wine_lexicon)
+    
+    # ================================================================
+    # ANÁLISE NLP AVANÇADA (TEXTUAL)
+    # ================================================================
+    if nlp_available and descriptor_analysis and 'high_rated_words' in descriptor_analysis:
+        print("\n" + "🔬" * 35)
+        print("🧠 ANÁLISE NLP AVANÇADA - INSIGHTS DE VOCABULÁRIO")
+        print("🔬" * 70)
+        
+        print("\n🏆 TOP 15 PALAVRAS ASSOCIADAS A RATINGS ALTOS")
+        print("-" * 70)
+        
+        top_words = sorted(descriptor_analysis['high_rated_words'].items(), 
+                          key=lambda x: x[1]['score'], reverse=True)[:15]
+        
+        if top_words:
+            print("   Palavra          | Score  | Alto% | Médio% | Baixo% | Contagem")
+            print("-" * 70)
+            
+            for word, data in top_words:
+                print(f"   {word[:15]:15} | {data['score']:+5.3f} | {data['high_ratio']*100:5.1f} | "
+                     f"{data['medium_ratio']*100:6.1f} | {data['low_ratio']*100:6.1f} | {data['count']:8}")
+        
+        # Estatísticas de análise de palavras
+        stats_data = descriptor_analysis.get('stats', {})
+        print(f"\n📊 ESTATÍSTICAS DA ANÁLISE:")
+        print(f"   • Avaliações com rating alto (≥90): {stats_data.get('high_rated_count', 'N/A')}")
+        print(f"   • Avaliações com rating médio (80-89): {stats_data.get('medium_rated_count', 'N/A')}")
+        print(f"   • Avaliações com rating baixo (<80): {stats_data.get('low_rated_count', 'N/A')}")
+        print(f"   • Palavras distintivas encontradas: {len(descriptor_analysis.get('high_rated_words', {}))}")
+    
+    # ================================================================
+    # ANÁLISE PREÇO vs QUALIDADE (TEXTUAL)
+    # ================================================================
+    if price_analysis and 'correlation' in price_analysis:
+        print("\n" + "💰" * 35)
+        print("💎 ANÁLISE PREÇO vs QUALIDADE")
+        print("💰" * 70)
+        
+        correlation = price_analysis['correlation']
+        stats_price = price_analysis.get('stats', {})
+        
+        print(f"\n📈 CORRELAÇÃO PREÇO vs RATING: {correlation:+.3f}")
+        
+        # Interpretação da correlação
+        if correlation > 0.5:
+            interpretation = "🟢 Forte correlação positiva - preços altos tendem a ter ratings altos"
+        elif correlation > 0.3:
+            interpretation = "🟡 Correlação moderada - alguma tendência preço-qualidade"
+        elif correlation > 0.1:
+            interpretation = "🟠 Correlação fraca - pouca relação preço-qualidade"
+        else:
+            interpretation = "🔴 Sem correlação significativa - preço não prediz qualidade"
+        
+        print(f"📊 Interpretação: {interpretation}")
+        
+        print(f"\n📋 ESTATÍSTICAS:")
+        print(f"   • Total de vinhos com preço: {stats_price.get('total_with_price', 'N/A')}")
+        
+        if 'price_range' in stats_price:
+            price_min, price_max = stats_price['price_range']
+            print(f"   • Faixa de preços: ${price_min:.2f} - ${price_max:.2f}")
+        
+        if 'rating_range' in stats_price:
+            rating_min, rating_max = stats_price['rating_range']
+            print(f"   • Faixa de ratings: {rating_min} - {rating_max}")
+        
+        # Análise por categoria de preço
+        if 'price_analysis' in price_analysis:
+            print(f"\n💎 ANÁLISE POR CATEGORIA DE PREÇO:")
+            print("-" * 50)
+            print("   Categoria    | Rating Médio | Sentimento | Preço Médio")
+            print("-" * 50)
+            
+            price_cats = price_analysis['price_analysis']
+            for category in price_cats.index:
+                rating_mean = price_cats.loc[category, ('rating', 'mean')]
+                sentiment_mean = price_cats.loc[category, ('enhanced_polarity', 'mean')]
+                price_mean = price_cats.loc[category, ('price', 'mean')]
+                
+                sentiment_emoji = "😊" if sentiment_mean > 0.1 else "😞" if sentiment_mean < -0.1 else "😐"
+                
+                print(f"   {category:12} | {rating_mean:11.1f} | {sentiment_mean:+7.3f} {sentiment_emoji} | ${price_mean:9.2f}")
+    
+    # ================================================================
+    # INSIGHTS E RECOMENDAÇÕES
+    # ================================================================
+    print("\n" + "🎯" * 35)
+    print("💡 INSIGHTS E RECOMENDAÇÕES")
+    print("🎯" * 70)
+    
+    # Análise de sentimento geral
+    positive_pct = (data_clean['sentiment_category'] == 'Positive').mean() * 100
+    negative_pct = (data_clean['sentiment_category'] == 'Negative').mean() * 100
+    
+    print(f"\n📊 PANORAMA GERAL:")
+    if positive_pct > 60:
+        print("🟢 Sentimento predominantemente positivo - boa qualidade geral dos vinhos")
+    elif positive_pct > 40:
+        print("🟡 Sentimento equilibrado - qualidade variada")
+    else:
+        print("🔴 Sentimento predominantemente neutro/negativo - considerar melhor curadoria")
+    
+    # Insights sobre termos de vinho
+    avg_wine_terms = data_clean['wine_terms_found'].mean()
+    print(f"\n🍇 ANÁLISE DE VOCABULÁRIO:")
+    print(f"   • Média de termos de vinho por avaliação: {avg_wine_terms:.1f}")
+    
+    if avg_wine_terms > 3:
+        print("🟢 Avaliações ricas em vocabulário técnico")
+    elif avg_wine_terms > 1.5:
+        print("🟡 Vocabulário técnico moderado")
+    else:
+        print("🔴 Vocabulário técnico limitado - avaliações mais simples")
+    
+    # Recomendações baseadas em tipos de vinho
+    if 'wine_type' in data_clean.columns:
+        wine_type_sentiment = data_clean.groupby('wine_type')['enhanced_polarity'].mean().sort_values(ascending=False)
+        best_type = wine_type_sentiment.index[0]
+        best_sentiment = wine_type_sentiment.iloc[0]
+        
+        print(f"\n🏆 RECOMENDAÇÃO:")
+        print(f"   • Melhor categoria: {best_type} (sentimento: {best_sentiment:+.3f})")
+        print(f"   • Considere focar nesta categoria para maximizar satisfação")
+    
+    # Instruções para análise mais profunda
+    print(f"\n🔍 PARA ANÁLISE MAIS PROFUNDA:")
+    print("   • Execute opção 2 para gráficos detalhados")
+    print("   • Execute opção 1 para dashboard interativo")
+    print("   • Verifique ficheiros CSV gerados na pasta data/")
+    
+    print("\n" + "🎯" * 70)
+    print("💡 ANÁLISE TEXTUAL COMPLETA CONCLUÍDA!")
+    print("🎯" * 70)
+
+# ====================================================================
+# SECTION 13: ANÁLISE NLP AVANÇADA
+# ====================================================================
+
+def analyze_descriptors_by_rating(data_clean):
+    """Analisar quais palavras estão associadas a melhores notas"""
+    from collections import Counter
+    import nltk
+    from nltk.corpus import stopwords
+    from nltk.tokenize import word_tokenize
+    
+    try:
+        nltk.download('punkt', quiet=True)
+        nltk.download('stopwords', quiet=True)
+        stop_words = set(stopwords.words('english'))
+    except:
+        stop_words = {'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by'}
+    
+    print("🔍 A analisar descritores por rating...")
+    
+    # Dividir avaliações por rating
+    if 'rating' not in data_clean.columns:
+        print("⚠️  Coluna 'rating' não disponível")
+        return {}
+    
+    # Definir grupos de rating
+    high_rated = data_clean[data_clean['rating'] >= 90]['review'].dropna()
+    medium_rated = data_clean[(data_clean['rating'] >= 80) & (data_clean['rating'] < 90)]['review'].dropna()
+    low_rated = data_clean[data_clean['rating'] < 80]['review'].dropna()
+    
+    def extract_words(reviews):
+        all_words = []
+        for review in reviews:
+            try:
+                words = word_tokenize(str(review).lower())
+                words = [word for word in words if word.isalpha() and len(word) > 3 and word not in stop_words]
+                all_words.extend(words)
+            except:
+                continue
+        return Counter(all_words)
+    
+    high_words = extract_words(high_rated)
+    medium_words = extract_words(medium_rated)
+    low_words = extract_words(low_rated)
+    
+    # Palavras mais associadas a ratings altos
+    high_distinctive = {}
+    for word, count in high_words.most_common(100):
+        high_ratio = count / len(high_rated) if len(high_rated) > 0 else 0
+        medium_ratio = medium_words.get(word, 0) / len(medium_rated) if len(medium_rated) > 0 else 0
+        low_ratio = low_words.get(word, 0) / len(low_rated) if len(low_rated) > 0 else 0
+        
+        if high_ratio > medium_ratio and high_ratio > low_ratio and count >= 10:
+            high_distinctive[word] = {
+                'count': count,
+                'high_ratio': high_ratio,
+                'medium_ratio': medium_ratio,
+                'low_ratio': low_ratio,
+                'score': high_ratio - max(medium_ratio, low_ratio)
+            }
+    
+    print(f"✅ Análise concluída: {len(high_distinctive)} palavras distintivas encontradas")
+    
+    return {
+        'high_rated_words': high_distinctive,
+        'high_word_counts': high_words,
+        'medium_word_counts': medium_words,
+        'low_word_counts': low_words,
+        'stats': {
+            'high_rated_count': len(high_rated),
+            'medium_rated_count': len(medium_rated),
+            'low_rated_count': len(low_rated)
+        }
+    }
+
+def generate_wordcloud_analysis(data_clean, descriptor_analysis):
+    """Gerar word clouds comparativos"""
+    try:
+        from wordcloud import WordCloud
+        import matplotlib.pyplot as plt
+        
+        print("☁️  A gerar word clouds...")
+        
+        fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+        
+        # Word cloud para vinhos bem avaliados (rating >= 90)
+        if 'rating' in data_clean.columns:
+            high_rated_text = ' '.join(data_clean[data_clean['rating'] >= 90]['review'].dropna().astype(str))
+            if len(high_rated_text) > 100:
+                wc_high = WordCloud(width=800, height=400, background_color='white', 
+                                   colormap='Greens', max_words=100).generate(high_rated_text)
+                axes[0,0].imshow(wc_high, interpolation='bilinear')
+                axes[0,0].set_title('📈 Vinhos Bem Avaliados (Rating ≥ 90)', fontsize=14, fontweight='bold')
+                axes[0,0].axis('off')
+            
+            # Word cloud para vinhos mal avaliados (rating < 80)
+            low_rated_text = ' '.join(data_clean[data_clean['rating'] < 80]['review'].dropna().astype(str))
+            if len(low_rated_text) > 100:
+                wc_low = WordCloud(width=800, height=400, background_color='white', 
+                                  colormap='Reds', max_words=100).generate(low_rated_text)
+                axes[0,1].imshow(wc_low, interpolation='bilinear')
+                axes[0,1].set_title('📉 Vinhos Mal Avaliados (Rating < 80)', fontsize=14, fontweight='bold')
+                axes[0,1].axis('off')
+        
+        # Word cloud por sentimento
+        positive_text = ' '.join(data_clean[data_clean['sentiment_category'] == 'Positive']['review'].dropna().astype(str))
+        if len(positive_text) > 100:
+            wc_pos = WordCloud(width=800, height=400, background_color='white', 
+                              colormap='Blues', max_words=100).generate(positive_text)
+            axes[1,0].imshow(wc_pos, interpolation='bilinear')
+            axes[1,0].set_title('😊 Sentimento Positivo', fontsize=14, fontweight='bold')
+            axes[1,0].axis('off')
+        
+        negative_text = ' '.join(data_clean[data_clean['sentiment_category'] == 'Negative']['review'].dropna().astype(str))
+        if len(negative_text) > 100:
+            wc_neg = WordCloud(width=800, height=400, background_color='white', 
+                              colormap='Oranges', max_words=100).generate(negative_text)
+            axes[1,1].imshow(wc_neg, interpolation='bilinear')
+            axes[1,1].set_title('😞 Sentimento Negativo', fontsize=14, fontweight='bold')
+            axes[1,1].axis('off')
+        
+        plt.suptitle('☁️  Análise de Palavras-Chave por Categoria', fontsize=16, fontweight='bold')
+        plt.tight_layout()
+        plt.savefig('imagens/10_wordcloud_analysis.png', dpi=300, bbox_inches='tight')
+        plt.show()
+        print("✅ Gráfico 10: Word clouds guardados")
+        
+    except ImportError:
+        print("⚠️  WordCloud não instalado. Instale com: pip install wordcloud")
+        print("📊 A gerar análise alternativa...")
+        
+        # Análise alternativa sem wordcloud
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
+        
+        if descriptor_analysis and 'high_rated_words' in descriptor_analysis:
+            # Top palavras em vinhos bem avaliados
+            top_high_words = sorted(descriptor_analysis['high_rated_words'].items(), 
+                                  key=lambda x: x[1]['score'], reverse=True)[:15]
+            
+            if top_high_words:
+                words, scores = zip(*[(word, data['score']) for word, data in top_high_words])
+                ax1.barh(range(len(words)), scores, color='#2ecc71', alpha=0.8)
+                ax1.set_yticks(range(len(words)))
+                ax1.set_yticklabels(words)
+                ax1.set_title('🏆 Palavras Mais Associadas a Ratings Altos', fontweight='bold')
+                ax1.set_xlabel('Score de Associação')
+                ax1.grid(True, alpha=0.3, axis='x')
+        
+        # Frequência de termos por categoria de sentimento
+        sentiment_terms = {}
+        for category in ['Positive', 'Negative', 'Neutral']:
+            category_text = ' '.join(data_clean[data_clean['sentiment_category'] == category]['review'].dropna().astype(str))
+            words = category_text.lower().split()
+            sentiment_terms[category] = len([w for w in words if len(w) > 4])
+        
+        categories = list(sentiment_terms.keys())
+        counts = list(sentiment_terms.values())
+        colors = ['#2ecc71', '#e74c3c', '#95a5a6']
+        
+        ax2.pie(counts, labels=categories, autopct='%1.1f%%', colors=colors, startangle=90)
+        ax2.set_title('📊 Distribuição de Palavras por Sentimento', fontweight='bold')
+        
+        plt.tight_layout()
+        plt.savefig('imagens/10_word_analysis.png', dpi=300, bbox_inches='tight')
+        plt.show()
+        print("✅ Gráfico 10: Análise de palavras guardada")
+
+def analyze_price_quality_correlation(data_clean):
+    """Analisar correlação entre preço e qualidade"""
+    print("💰 A analisar correlação preço vs qualidade...")
+    
+    if 'price' not in data_clean.columns or 'rating' not in data_clean.columns:
+        print("⚠️  Colunas 'price' ou 'rating' não disponíveis")
+        return {}
+    
+    # Filtrar dados válidos
+    valid_data = data_clean.dropna(subset=['price', 'rating'])
+    valid_data = valid_data[(valid_data['price'] > 0) & (valid_data['rating'] > 0)]
+    
+    if len(valid_data) < 10:
+        print("⚠️  Dados insuficientes para análise preço vs qualidade")
+        return {}
+    
+    # Calcular correlação
+    correlation = valid_data['price'].corr(valid_data['rating'])
+    
+    # Criar categorias de preço
+    price_percentiles = valid_data['price'].quantile([0.25, 0.5, 0.75])
+    
+    def categorize_price(price):
+        if price <= price_percentiles[0.25]:
+            return 'Económico'
+        elif price <= price_percentiles[0.5]:
+            return 'Médio'
+        elif price <= price_percentiles[0.75]:
+            return 'Premium'
+        else:
+            return 'Luxo'
+    
+    valid_data['price_category'] = valid_data['price'].apply(categorize_price)
+    
+    # Análise por categoria de preço
+    price_analysis = valid_data.groupby('price_category').agg({
+        'rating': ['mean', 'std', 'count'],
+        'enhanced_polarity': ['mean', 'std'],
+        'price': ['mean', 'min', 'max']
+    }).round(3)
+    
+    print(f"✅ Correlação preço vs rating: {correlation:.3f}")
+    
+    return {
+        'correlation': correlation,
+        'valid_data': valid_data,
+        'price_analysis': price_analysis,
+        'price_percentiles': price_percentiles,
+        'stats': {
+            'total_with_price': len(valid_data),
+            'price_range': (valid_data['price'].min(), valid_data['price'].max()),
+            'rating_range': (valid_data['rating'].min(), valid_data['rating'].max())
+        }
+    }
+
+def generate_advanced_analysis_charts(data_clean, descriptor_analysis, price_analysis):
+    """Gerar gráficos de análise avançada"""
+    print("📊 A criar gráficos de análise avançada...")
+    
+    fig = plt.figure(figsize=(20, 14))
+    gs = fig.add_gridspec(3, 3, hspace=0.3, wspace=0.3)
+    
+    # 1. Top palavras associadas a ratings altos
+    if descriptor_analysis and 'high_rated_words' in descriptor_analysis:
+        ax1 = fig.add_subplot(gs[0, :2])
+        top_words = sorted(descriptor_analysis['high_rated_words'].items(), 
+                          key=lambda x: x[1]['score'], reverse=True)[:12]
+        
+        if top_words:
+            words, data = zip(*top_words)
+            scores = [d['score'] for d in data]
+            
+            bars = ax1.barh(range(len(words)), scores, color='#2ecc71', alpha=0.8)
+            ax1.set_yticks(range(len(words)))
+            ax1.set_yticklabels(words)
+            ax1.set_title('🏆 Palavras Mais Associadas a Ratings Altos', fontweight='bold')
+            ax1.set_xlabel('Score de Associação')
+            ax1.grid(True, alpha=0.3, axis='x')
+    
+    # 2. Distribuição de ratings
+    ax2 = fig.add_subplot(gs[0, 2])
+    if 'rating' in data_clean.columns:
+        ratings = data_clean['rating'].dropna()
+        ax2.hist(ratings, bins=20, color='#3498db', alpha=0.7, edgecolor='black')
+        ax2.set_title('📊 Distribuição de Ratings', fontweight='bold')
+        ax2.set_xlabel('Rating')
+        ax2.set_ylabel('Frequência')
+        ax2.grid(True, alpha=0.3)
+        ax2.axvline(ratings.mean(), color='red', linestyle='--', alpha=0.8, linewidth=2)
+    
+    # 3. Correlação preço vs qualidade
+    if price_analysis and 'valid_data' in price_analysis:
+        ax3 = fig.add_subplot(gs[1, :2])
+        valid_data = price_analysis['valid_data']
+        
+        scatter = ax3.scatter(valid_data['price'], valid_data['rating'], 
+                             c=valid_data['enhanced_polarity'], cmap='RdYlGn', 
+                             alpha=0.6, s=30)
+        ax3.set_xlabel('Preço')
+        ax3.set_ylabel('Rating')
+        ax3.set_title(f'💰 Preço vs Rating (Correlação: {price_analysis["correlation"]:.3f})', 
+                     fontweight='bold')
+        ax3.grid(True, alpha=0.3)
+        plt.colorbar(scatter, ax=ax3, label='Sentimento')
+        
+        # Linha de tendência
+        z = np.polyfit(valid_data['price'], valid_data['rating'], 1)
+        p = np.poly1d(z)
+        ax3.plot(valid_data['price'], p(valid_data['price']), "r--", alpha=0.8, linewidth=2)
+    
+    # 4. Análise por categoria de preço
+    if price_analysis and 'price_analysis' in price_analysis:
+        ax4 = fig.add_subplot(gs[1, 2])
+        price_cats = price_analysis['price_analysis']
+        
+        categories = price_cats.index
+        ratings = price_cats[('rating', 'mean')]
+        
+        bars = ax4.bar(range(len(categories)), ratings, 
+                      color=['#2ecc71', '#f39c12', '#e74c3c', '#9b59b6'][:len(categories)], 
+                      alpha=0.8)
+        ax4.set_xticks(range(len(categories)))
+        ax4.set_xticklabels(categories, rotation=45)
+        ax4.set_title('💎 Rating Médio por Categoria de Preço', fontweight='bold')
+        ax4.set_ylabel('Rating Médio')
+        ax4.grid(True, alpha=0.3, axis='y')
+    
+    # 5. Termos de vinho por categoria de sentimento
+    ax5 = fig.add_subplot(gs[2, :])
+    sentiment_terms = data_clean.groupby('sentiment_category')['wine_terms_found'].agg(['mean', 'sum', 'count'])
+    
+    x = np.arange(len(sentiment_terms))
+    width = 0.25
+    
+    bars1 = ax5.bar(x - width, sentiment_terms['mean'], width, label='Média por Avaliação', 
+                   color='#3498db', alpha=0.8)
+    bars2 = ax5.bar(x, sentiment_terms['sum']/sentiment_terms['sum'].max()*sentiment_terms['mean'].max(), 
+                   width, label='Total (Normalizado)', color='#e74c3c', alpha=0.8)
+    bars3 = ax5.bar(x + width, sentiment_terms['count']/sentiment_terms['count'].max()*sentiment_terms['mean'].max(), 
+                   width, label='Número de Avaliações (Norm.)', color='#2ecc71', alpha=0.8)
+    
+    ax5.set_xlabel('Categoria de Sentimento')
+    ax5.set_ylabel('Termos de Vinho')
+    ax5.set_title('🍇 Termos de Vinho por Categoria de Sentimento', fontweight='bold')
+    ax5.set_xticks(x)
+    ax5.set_xticklabels(sentiment_terms.index)
+    ax5.legend()
+    ax5.grid(True, alpha=0.3, axis='y')
+    
+    plt.suptitle('🔬 Análise NLP Avançada - Insights de Qualidade e Vocabulário', 
+                 fontsize=18, fontweight='bold', y=0.98)
+    plt.savefig('imagens/11_advanced_nlp_analysis.png', dpi=300, bbox_inches='tight')
+    plt.show()
+    print("✅ Gráfico 11: Análise NLP avançada guardada")
+
 # ====================================================================
 # SECTION 11: FUNÇÃO PRINCIPAL E EXECUÇÃO
 # ====================================================================
@@ -1176,21 +1674,31 @@ def main():
     return data_clean, stats, summary_stats, wine_lexicon
 
 def user_choice():
-    """Interface do utilizador para escolha"""
+    """Interface do utilizador para escolha (atualizada)"""
     
     print("\n" + "="*70)
     print("🎨 COMO GOSTARIA DE VER OS RESULTADOS?")
     print("="*70)
-    print("1️⃣  Dashboard Interativo")
-    print("2️⃣  Visualizações no Terminal (Com gráficos)")
-    print("3️⃣  Apenas resumo no terminal (sem gráficos)")
-    print("4️⃣  Sair")
+    print("1️⃣  🌐 Dashboard Interativo")
+    print("    └─ Interface web com filtros e gráficos interativos")
+    print()
+    print("2️⃣  📊 Visualizações Avançadas (Com gráficos)")
+    print("    └─ 11 gráficos incluindo word clouds e análise NLP")
+    print()
+    print("3️⃣  📋 Análise Completa no Terminal (Sem gráficos)")
+    print("    └─ Resumo detalhado com insights NLP e correlações")
+    print()
+    print("4️⃣  🚪 Sair")
+    print("    └─ Apenas processar dados e sair")
     print("="*70)
     
     while True:
         try:
             choice = input("\n👉 Introduza a sua escolha (1-4): ").strip()
-            return choice
+            if choice in ['1', '2', '3', '4']:
+                return choice
+            else:
+                print("❌ Entrada inválida. Introduza 1, 2, 3 ou 4.")
         except KeyboardInterrupt:
             print("\n👋 Programa interrompido pelo utilizador.")
             return "4"
@@ -1257,15 +1765,50 @@ if __name__ == "__main__":
             show_terminal_summary(data_clean, stats, summary_stats, wine_lexicon)
         
     elif choice == "2":
-        # VISUALIZAÇÕES NO TERMINAL
-        print("\n📊 A gerar visualizações...")
+        # VISUALIZAÇÕES NO TERMINAL (ATUALIZADA)
+        print("\n📊 A gerar visualizações avançadas...")
+        print("🔬 Incluindo análise NLP, word clouds e correlações")
         try:
+            # Executar análise completa com todas as funcionalidades
             output_dir = generate_terminal_visualizations(data_clean, stats, wine_lexicon)
-            print(f"✅ Gráficos guardados em: {output_dir}/")
+            
+            # Verificar se análise NLP foi executada
+            nlp_files_generated = [
+                f"{output_dir}/10_wordcloud_analysis.png",
+                f"{output_dir}/11_advanced_nlp_analysis.png"
+            ]
+            
+            nlp_success = any(os.path.exists(f) for f in nlp_files_generated)
+            
+            print(f"\n✅ Visualizações guardadas em: {output_dir}/")
+            print(f"📊 Total de gráficos gerados: 11")
+            
+            if nlp_success:
+                print("🔬 Análise NLP avançada incluída:")
+                print("   • Word clouds por categoria")
+                print("   • Análise de palavras associadas a qualidade")
+                print("   • Correlações preço vs qualidade")
+            else:
+                print("⚠️  Análise NLP limitada (instale: pip install nltk wordcloud)")
+            
+            # Mostrar resumo completo
             show_terminal_summary(data_clean, stats, summary_stats, wine_lexicon)
+            
+            # Instruções para visualizar gráficos
+            print("\n" + "="*60)
+            print("🖼️  COMO VISUALIZAR OS GRÁFICOS GERADOS:")
+            print("="*60)
+            print(f"📁 Abra a pasta: {output_dir}/")
+            print("📊 Gráficos disponíveis:")
+            print("   01-09: Análise básica de sentimento")
+            print("   10: Word clouds comparativos")
+            print("   11: Análise NLP avançada")
+            print("="*60)
+            
         except Exception as e:
             print(f"❌ Erro ao gerar gráficos: {e}")
-            show_terminal_summary(data_clean, stats, summary_stats, wine_lexicon)
+            print("📊 A mostrar resumo detalhado no terminal...")
+            show_enhanced_terminal_summary(data_clean, stats, summary_stats, wine_lexicon)
     
     elif choice == "3":
         # APENAS RESUMO NO TERMINAL
@@ -1293,4 +1836,5 @@ if __name__ == "__main__":
         print("3. Execute o comando:")
         print("   streamlit run dashboard.py")
         print("4. O dashboard abrirá em: http://localhost:8501")
+        print("5. Para parar o dashboard, pressione Ctrl+C no terminal onde está a correr")
         print("="*60)
