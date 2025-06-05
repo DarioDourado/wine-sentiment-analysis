@@ -1,1 +1,115 @@
-{"insights": {"title": "🔍 Data Insights"}}
+{
+  "main_title": "🍷 Wine Sentiment Analysis Dashboard",
+  "main_subtitle": "Advanced Sentiment Analysis of Wine Reviews",
+  "main_description": "Comprehensive analysis using NLP techniques and wine-specific vocabulary",
+  "common": {
+    "all": "All",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success"
+  },
+  "messages": {
+    "loading_data": "Loading wine data...",
+    "no_data": "❌ No data found! Please run the main analysis script first.",
+    "no_data_filters": "⚠️ No data matches the current filters. Please adjust your selection.",
+    "data_loaded": "✅ Data loaded successfully"
+  },
+  "filters": {
+    "title": "🔍 Advanced Filters",
+    "reset": "🔄 Reset All Filters",
+    "wine_type": "🍷 Wine Type",
+    "wine_type_help": "Filter by wine type (Red, White, etc.)",
+    "sentiment_category": "😊 Sentiment",
+    "sentiment_help": "Filter by sentiment category",
+    "country": "🌍 Country",
+    "country_help": "Filter by wine country of origin",
+    "polarity_range": "📊 Sentiment Range",
+    "polarity_help": "Filter by sentiment polarity value",
+    "rating_range": "⭐ Rating Range",
+    "rating_help": "Filter by wine rating score",
+    "wine_terms": "🍇 Wine Terms Count",
+    "wine_terms_help": "Filter by number of wine terms found",
+    "filtered_dataset": "📊 Filtered Dataset",
+    "records": "Records",
+    "percent_total": "% of Total"
+  },
+  "metrics": {
+    "title": "📊 Key Metrics",
+    "total_reviews": "📝 Total Reviews",
+    "avg_sentiment": "😊 Avg Sentiment",
+    "positive_percent": "✅ % Positive",
+    "wine_terms_metric": "🍇 Wine Terms",
+    "wine_types_metric": "🍷 Wine Types"
+  },
+  "visualizations": {
+    "title": "📈 Data Visualizations",
+    "sentiment_distribution": "😊 Sentiment Distribution",
+    "original_textblob": "Original TextBlob",
+    "enhanced_analysis": "Enhanced Analysis",
+    "polarity_comparison": "📊 Polarity Comparison",
+    "wine_type_analysis": "🍷 Wine Type Analysis",
+    "wine_type_distribution": "🍷 Wine Type Distribution",
+    "avg_sentiment_wine_type": "📊 Average Sentiment by Wine Type",
+    "geographic_analysis": "🌍 Geographic Analysis",
+    "top_countries_count": "🌍 Top Countries by Review Count",
+    "top_countries_sentiment": "🌍 Top Countries by Sentiment",
+    "varietal_analysis": "🍇 Varietal Analysis",
+    "top_varietals_count": "🍇 Top Varietals by Count",
+    "top_varietals_sentiment": "🍇 Top Varietals by Sentiment",
+    "rating_sentiment_correlation": "⭐ Rating vs Sentiment",
+    "rating_vs_sentiment": "⭐ Rating vs Sentiment Correlation",
+    "wine_terms_distribution": "🍇 Wine Terms Distribution",
+    "terms_found": "Number of Wine Terms Found",
+    "review_count": "Number of Reviews",
+    "price_quality_correlation": "💰 Price vs Quality Correlation",
+    "rating_histogram": "⭐ Rating Histogram",
+    "rating_by_sentiment": "⭐ Rating by Sentiment Category",
+    "rating_analysis": "⭐ Rating Distribution Analysis",
+    "wordcloud_analysis": "☁️ Word Cloud Analysis",
+    "advanced_nlp_analysis": "🔬 Advanced NLP Analysis",
+    "advanced_analysis": "🔬 Advanced Analysis Charts"
+  },
+  "advanced": {
+    "title": "Advanced NLP Analysis",
+    "wine_terms_impact": "🍇 Wine Terms Impact Analysis",
+    "price_quality": "💰 Price vs Quality Analysis",
+    "rating_distribution": "⭐ Rating Distribution Analysis",
+    "generated_charts": "🖼️ Generated Analysis Charts"
+  },
+  "insights": {
+    "title": "🔍 Data Insights",
+    "dataset_overview": "📊 Dataset Overview",
+    "data_quality": "🔍 Data Quality Assessment",
+    "key_insights": "💡 Key Insights",
+    "analysis_summary": "🎯 Analysis Summary",
+    "what_discovered": "📋 What We Discovered",
+    "next_steps": "🚀 Next Steps"
+  },
+  "tabs": {
+    "wine_terms": "📊 Wine Terms Analysis",
+    "price_quality": "💰 Price vs Quality",
+    "rating_distribution": "⭐ Rating Distribution",
+    "advanced_charts": "🖼️ Advanced Charts"
+  },
+  "statistics": {
+    "total_wine_terms": "Total wine terms",
+    "average_per_review": "Average per review",
+    "reviews_with_terms": "Reviews with terms",
+    "maximum_in_review": "Maximum in one review",
+    "correlation": "📊 Correlation",
+    "strength": "🎯 Strength",
+    "data_points": "📈 Data Points",
+    "price_range": "💰 Price Range"
+  },
+  "categories": {
+    "budget": "Budget",
+    "mid_range": "Mid-Range",
+    "premium": "Premium",
+    "luxury": "Luxury"
+  },
+  "footer": {
+    "title": "🍷 Wine Sentiment Analysis Dashboard",
+    "developers": "Developed by Dario Dourado and Renato Ruivo",
+    "course": "Intelligent Systems - Advanced Wine Review Sentiment Analysis"
+  }
+}

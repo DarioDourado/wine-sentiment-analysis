@@ -971,10 +971,10 @@ def main():
         
         # Tabs para diferentes análises
         tab1, tab2, tab3, tab4 = st.tabs([
-            "📊 Wine Terms Analysis",
-            "💰 Price vs Quality",
-            "⭐ Rating Distribution", 
-            "🖼️ Advanced Charts"
+            get_text(translations, "tabs.wine_terms"),
+            get_text(translations, "tabs.price_quality"), 
+            get_text(translations, "tabs.rating_distribution"),
+            get_text(translations, "tabs.advanced_charts")
         ])
         
         with tab1:
@@ -1204,14 +1204,14 @@ def main():
     # INSIGHTS E ESTATÍSTICAS (REFORMULADO)
     # ================================================================
     
-    st.markdown(f'<h2 class="section-header">🔍 Data Insights</h2>', unsafe_allow_html=True)
+    st.markdown(f'<h2 class="section-header">{get_text(translations, "insights.title")}</h2>', unsafe_allow_html=True)
     
     col1, col2 = st.columns(2)
     
     with col1:
-        st.markdown("""
+        st.markdown(f"""
         <div class="info-box">
-            <h4>📊 Dataset Overview</h4>
+            <h4>{get_text(translations, "insights.dataset_overview")}</h4>
         </div>
         """, unsafe_allow_html=True)
         
@@ -1227,9 +1227,9 @@ def main():
             st.metric("Data Types", f"{len(df.dtypes.unique())}")
 
     with col2:
-        st.markdown("""
+        st.markdown(f"""
         <div class="info-box">
-            <h4>🔍 Data Quality Assessment</h4>
+            <h4>{get_text(translations, "insights.data_quality")}</h4>
         </div>
         """, unsafe_allow_html=True)
         
@@ -1255,7 +1255,7 @@ def main():
 
     # Resumo de insights principais
     if 'enhanced_polarity' in df.columns and 'sentiment_category' in df.columns:
-        st.markdown("#### 💡 Key Insights")
+        st.markdown(f"#### {get_text(translations, 'insights.key_insights')}")
         
         positive_pct = (df['sentiment_category'] == 'Positive').mean() * 100
         avg_sentiment = df['enhanced_polarity'].mean()
@@ -1294,14 +1294,14 @@ def main():
     # CONCLUSÃO SIMPLIFICADA
     # ================================================================
 
-    st.markdown(f'<h2 class="section-header">🎯 Analysis Summary</h2>', unsafe_allow_html=True)
+    st.markdown(f'<h2 class="section-header">{get_text(translations, "insights.analysis_summary")}</h2>', unsafe_allow_html=True)
 
     summary_col1, summary_col2 = st.columns(2)
 
     with summary_col1:
-        st.markdown("""
-        ### 📋 What We Discovered
+        st.markdown(f"### {get_text(translations, 'insights.what_discovered')}")
         
+        st.markdown("""
         This wine sentiment analysis reveals patterns in wine reviews through:
         - **Enhanced sentiment analysis** with wine-specific vocabulary
         - **Quality correlations** between ratings and sentiment
@@ -1310,9 +1310,9 @@ def main():
         """)
 
     with summary_col2:
-        st.markdown("""
-        ### 🚀 Next Steps
+        st.markdown(f"### {get_text(translations, 'insights.next_steps')}")
         
+        st.markdown("""
         To expand this analysis:
         - Run the main script for **advanced NLP features**
         - Explore **price vs quality correlations**
@@ -1322,11 +1322,11 @@ def main():
 
     # Informações do projeto
     st.markdown("---")
-    st.markdown("""
+    st.markdown(f"""
     <div style="text-align: center; padding: 1rem; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px;">
-        <h4>🍷 Wine Sentiment Analysis Dashboard</h4>
-        <p>Desenvolvido por <strong>Dario Dourado</strong> e <strong>Renato Ruivo</strong></p>
-        <p><em>Sistemas Inteligentes - Análise Avançada de Sentimentos em Avaliações de Vinhos</em></p>
+        <h4>{get_text(translations, "footer.title")}</h4>
+        <p>{get_text(translations, "footer.developers")}</p>
+        <p><em>{get_text(translations, "footer.course")}</em></p>
     </div>
     """, unsafe_allow_html=True)
 
