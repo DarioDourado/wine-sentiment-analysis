@@ -590,9 +590,9 @@ def generate_wine_type_analysis_chart(data_clean, stats, wine_lexicon, output_di
 # ====================================================================
 
 def generate_terminal_visualizations(data_clean, stats, wine_lexicon):
-    """Gerar visualizações abrangentes para o terminal (matplotlib)"""
+    """Gerar visualizações individuais para o terminal (cada gráfico em arquivo separado)"""
     
-    print("🎨 A GERAR VISUALIZAÇÕES ABRANGENTES...")
+    print("🎨 A GERAR VISUALIZAÇÕES INDIVIDUAIS...")
     print("=" * 60)
     
     # Configurar estilo matplotlib
@@ -600,55 +600,60 @@ def generate_terminal_visualizations(data_clean, stats, wine_lexicon):
     sns.set_palette("husl")
     plt.rcParams['figure.facecolor'] = 'white'
     plt.rcParams['axes.facecolor'] = 'white'
-    plt.rcParams['font.size'] = 10
+    plt.rcParams['font.size'] = 12
     
     output_dir = 'imagens'
     os.makedirs(output_dir, exist_ok=True)
     
     # ================================================================
-    # 1. COMPARAÇÃO DE POLARIDADE
+    # 1. HISTOGRAMA POLARIDADE ORIGINAL
     # ================================================================
-    print("📊 A criar gráficos de comparação de polaridade...")
+    print("📊 Gráfico 1/17: Histograma polaridade original...")
     
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
-    
-    # Polaridade original TextBlob
+    fig, ax = plt.subplots(1, 1, figsize=(12, 8))
     sns.histplot(data_clean['original_polarity'], kde=True, alpha=0.7, 
-                 color='#3498db', ax=ax1, bins=30)
-    ax1.axvline(data_clean['original_polarity'].mean(), color='red', 
-                linestyle='--', alpha=0.8, linewidth=2)
-    ax1.set_title('TextBlob Original\nDistribuição de Polaridade', 
-                  fontsize=14, fontweight='bold', pad=20)
-    ax1.set_xlabel('Polaridade', fontsize=12)
-    ax1.set_ylabel('Frequência', fontsize=12)
-    ax1.grid(True, alpha=0.3)
-    
-    # Polaridade aprimorada
-    sns.histplot(data_clean['enhanced_polarity'], kde=True, alpha=0.7, 
-                 color='#e74c3c', ax=ax2, bins=30)
-    ax2.axvline(data_clean['enhanced_polarity'].mean(), color='red', 
-                linestyle='--', alpha=0.8, linewidth=2)
-    ax2.set_title('Análise Aprimorada\nDistribuição de Polaridade', 
-                  fontsize=14, fontweight='bold', pad=20)
-    ax2.set_xlabel('Polaridade', fontsize=12)
-    ax2.set_ylabel('Frequência', fontsize=12)
-    ax2.grid(True, alpha=0.3)
-    
-    plt.suptitle('🍷 Comparação da Análise de Sentimento de Vinhos', 
-                 fontsize=16, fontweight='bold', y=1.02)
+                 color='#3498db', ax=ax, bins=30)
+    ax.axvline(data_clean['original_polarity'].mean(), color='red', 
+                linestyle='--', alpha=0.8, linewidth=2, 
+                label=f'Média: {data_clean["original_polarity"].mean():.3f}')
+    ax.set_title('📊 TextBlob Original - Distribuição de Polaridade', 
+                  fontsize=16, fontweight='bold', pad=20)
+    ax.set_xlabel('Polaridade', fontsize=14)
+    ax.set_ylabel('Frequência', fontsize=14)
+    ax.legend()
+    ax.grid(True, alpha=0.3)
     plt.tight_layout()
-    plt.savefig(f'{output_dir}/01_polarity_comparison.png', dpi=300, bbox_inches='tight')
+    plt.savefig(f'{output_dir}/01_polaridade_original.png', dpi=300, bbox_inches='tight')
     plt.show()
-    print("✅ Gráfico 1/9: Comparação de polaridade guardado")
+    plt.close()
+    
+    # ================================================================
+    # 2. HISTOGRAMA POLARIDADE APRIMORADA
+    # ================================================================
+    print("📊 Gráfico 2/17: Histograma polaridade aprimorada...")
+    
+    fig, ax = plt.subplots(1, 1, figsize=(12, 8))
+    sns.histplot(data_clean['enhanced_polarity'], kde=True, alpha=0.7, 
+                 color='#e74c3c', ax=ax, bins=30)
+    ax.axvline(data_clean['enhanced_polarity'].mean(), color='red', 
+                linestyle='--', alpha=0.8, linewidth=2, 
+                label=f'Média: {data_clean["enhanced_polarity"].mean():.3f}')
+    ax.set_title('📊 Análise Aprimorada - Distribuição de Polaridade', 
+                  fontsize=16, fontweight='bold', pad=20)
+    ax.set_xlabel('Polaridade', fontsize=14)
+    ax.set_ylabel('Frequência', fontsize=14)
+    ax.legend()
+    ax.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(f'{output_dir}/02_polaridade_aprimorada.png', dpi=300, bbox_inches='tight')
+    plt.show()
+    plt.close()
 
     # ================================================================
-    # 2. DISTRIBUIÇÃO DE CATEGORIAS DE SENTIMENTO
+    # 3. PIZZA SENTIMENTO ORIGINAL
     # ================================================================
-    print("📊 A criar distribuição de categorias de sentimento...")
+    print("📊 Gráfico 3/17: Pizza sentimento original...")
     
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
-    
-    # Categorias de sentimento originais
     original_categories = data_clean['original_polarity'].apply(
         lambda x: 'Positive' if x > 0.1 else ('Negative' if x < -0.1 else 'Neutral')
     )
@@ -656,86 +661,109 @@ def generate_terminal_visualizations(data_clean, stats, wine_lexicon):
     colors_orig = ['#2ecc71' if cat == 'Positive' else '#e74c3c' if cat == 'Negative' else '#95a5a6' 
                    for cat in original_counts.index]
     
-    wedges1, texts1, autotexts1 = ax1.pie(original_counts.values, labels=original_counts.index, 
-                                          autopct='%1.1f%%', colors=colors_orig, startangle=90)
-    ax1.set_title('TextBlob Original\nDistribuição de Sentimento', fontsize=14, fontweight='bold')
+    fig, ax = plt.subplots(1, 1, figsize=(10, 8))
+    wedges, texts, autotexts = ax.pie(original_counts.values, labels=original_counts.index, 
+                                      autopct='%1.1f%%', colors=colors_orig, startangle=90)
+    ax.set_title('📊 TextBlob Original - Distribuição de Sentimento', fontsize=16, fontweight='bold')
+    plt.tight_layout()
+    plt.savefig(f'{output_dir}/03_sentimento_original.png', dpi=300, bbox_inches='tight')
+    plt.show()
+    plt.close()
+
+    # ================================================================
+    # 4. PIZZA SENTIMENTO APRIMORADO
+    # ================================================================
+    print("📊 Gráfico 4/17: Pizza sentimento aprimorado...")
     
-    # Categorias de sentimento aprimoradas
     enhanced_counts = data_clean['sentiment_category'].value_counts()
     colors_enh = ['#2ecc71' if cat == 'Positive' else '#e74c3c' if cat == 'Negative' else '#95a5a6' 
                   for cat in enhanced_counts.index]
     
-    wedges2, texts2, autotexts2 = ax2.pie(enhanced_counts.values, labels=enhanced_counts.index, 
-                                          autopct='%1.1f%%', colors=colors_enh, startangle=90)
-    ax2.set_title('Análise Aprimorada\nDistribuição de Sentimento', fontsize=14, fontweight='bold')
-    
-    plt.suptitle('📊 Comparação da Distribuição de Categorias de Sentimento', 
-                 fontsize=16, fontweight='bold', y=1.02)
+    fig, ax = plt.subplots(1, 1, figsize=(10, 8))
+    wedges, texts, autotexts = ax.pie(enhanced_counts.values, labels=enhanced_counts.index, 
+                                      autopct='%1.1f%%', colors=colors_enh, startangle=90)
+    ax.set_title('📊 Análise Aprimorada - Distribuição de Sentimento', fontsize=16, fontweight='bold')
     plt.tight_layout()
-    plt.savefig(f'{output_dir}/02_sentiment_distribution.png', dpi=300, bbox_inches='tight')
+    plt.savefig(f'{output_dir}/04_sentimento_aprimorado.png', dpi=300, bbox_inches='tight')
     plt.show()
-    print("✅ Gráfico 2/9: Distribuição de sentimento guardado")
+    plt.close()
 
     # ================================================================
-    # 3. ANÁLISE DE IMPACTO DOS TERMOS DE VINHO
+    # 5. FREQUÊNCIA TERMOS DE VINHO
     # ================================================================
-    print("📊 A criar análise de impacto dos termos de vinho...")
+    print("📊 Gráfico 5/17: Frequência de termos de vinho...")
     
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
-    
-    # Frequência de termos de vinho
     terms_impact = data_clean['wine_terms_found'].value_counts().sort_index()
-    ax1.bar(terms_impact.index, terms_impact.values, color='#8e44ad', alpha=0.7)
-    ax1.set_title('Distribuição de Termos de Vinho\nEncontrados por Avaliação', fontsize=14, fontweight='bold')
-    ax1.set_xlabel('Número de Termos de Vinho Encontrados', fontsize=12)
-    ax1.set_ylabel('Número de Avaliações', fontsize=12)
-    ax1.grid(True, alpha=0.3)
     
-    # Distribuição do boost de vinho
-    wine_boost_data = data_clean[data_clean['wine_boost'] != 0]['wine_boost']
-    if len(wine_boost_data) > 0:
-        sns.histplot(wine_boost_data, kde=True, alpha=0.7, color='#f39c12', ax=ax2, bins=20)
-        ax2.axvline(wine_boost_data.mean(), color='red', linestyle='--', alpha=0.8, linewidth=2)
-        ax2.set_title('Distribuição do Boost\nde Termos de Vinho', fontsize=14, fontweight='bold')
-        ax2.set_xlabel('Boost de Termos de Vinho', fontsize=12)
-        ax2.set_ylabel('Frequência', fontsize=12)
-        ax2.grid(True, alpha=0.3)
-    else:
-        ax2.text(0.5, 0.5, 'Nenhum boost de termos de vinho encontrado', ha='center', va='center', 
-                transform=ax2.transAxes, fontsize=12)
-        ax2.set_title('Distribuição do Boost\nde Termos de Vinho', fontsize=14, fontweight='bold')
+    fig, ax = plt.subplots(1, 1, figsize=(12, 8))
+    bars = ax.bar(terms_impact.index, terms_impact.values, color='#8e44ad', alpha=0.8)
+    ax.set_title('🍇 Distribuição de Termos de Vinho por Avaliação', fontsize=16, fontweight='bold')
+    ax.set_xlabel('Número de Termos de Vinho Encontrados', fontsize=14)
+    ax.set_ylabel('Número de Avaliações', fontsize=14)
+    ax.grid(True, alpha=0.3)
     
-    plt.suptitle('🍇 Análise de Impacto dos Termos de Vinho', fontsize=16, fontweight='bold', y=1.02)
+    # Adicionar valores nas barras
+    for bar in bars:
+        height = bar.get_height()
+        ax.text(bar.get_x() + bar.get_width()/2., height + height*0.01,
+                f'{int(height)}', ha='center', va='bottom', fontsize=10)
+    
     plt.tight_layout()
-    plt.savefig(f'{output_dir}/03_wine_terms_impact.png', dpi=300, bbox_inches='tight')
+    plt.savefig(f'{output_dir}/05_frequencia_termos_vinho.png', dpi=300, bbox_inches='tight')
     plt.show()
-    print("✅ Gráfico 3/9: Impacto dos termos de vinho guardado")
+    plt.close()
 
     # ================================================================
-    # 4. TOP TERMOS DE VINHO ENCONTRADOS
+    # 6. DISTRIBUIÇÃO BOOST VINHO
     # ================================================================
-    print("📊 A criar gráfico dos top termos de vinho...")
+    print("📊 Gráfico 6/17: Distribuição boost de vinho...")
+    
+    wine_boost_data = data_clean[data_clean['wine_boost'] != 0]['wine_boost']
+    
+    fig, ax = plt.subplots(1, 1, figsize=(12, 8))
+    if len(wine_boost_data) > 0:
+        sns.histplot(wine_boost_data, kde=True, alpha=0.7, color='#f39c12', ax=ax, bins=20)
+        ax.axvline(wine_boost_data.mean(), color='red', linestyle='--', alpha=0.8, linewidth=2,
+                   label=f'Média: {wine_boost_data.mean():.3f}')
+        ax.set_title('📊 Distribuição do Boost de Termos de Vinho', fontsize=16, fontweight='bold')
+        ax.set_xlabel('Boost de Termos de Vinho', fontsize=14)
+        ax.set_ylabel('Frequência', fontsize=14)
+        ax.legend()
+        ax.grid(True, alpha=0.3)
+    else:
+        ax.text(0.5, 0.5, 'Nenhum boost de termos de vinho encontrado', ha='center', va='center', 
+                transform=ax.transAxes, fontsize=14)
+        ax.set_title('📊 Distribuição do Boost de Termos de Vinho', fontsize=16, fontweight='bold')
+    
+    plt.tight_layout()
+    plt.savefig(f'{output_dir}/06_boost_termos_vinho.png', dpi=300, bbox_inches='tight')
+    plt.show()
+    plt.close()
+
+    # ================================================================
+    # 7. TOP TERMOS DE VINHO
+    # ================================================================
+    print("📊 Gráfico 7/17: Top termos de vinho...")
     
     if len(stats['term_frequency']) > 0:
-        fig, ax = plt.subplots(1, 1, figsize=(14, 8))
-        
-        top_terms = stats['term_frequency'].head(15)
+        top_terms = stats['term_frequency'].head(20)
         colors = ['#27ae60' if wine_lexicon[term] > 0 else '#e74c3c' if wine_lexicon[term] < 0 else '#34495e' 
                   for term in top_terms.index]
         
+        fig, ax = plt.subplots(1, 1, figsize=(14, 10))
         bars = ax.barh(range(len(top_terms)), top_terms.values, color=colors, alpha=0.8)
         ax.set_yticks(range(len(top_terms)))
-        ax.set_yticklabels(top_terms.index)
-        ax.set_xlabel('Frequência', fontsize=12)
-        ax.set_title('🍇 Top 15 Termos de Vinho Encontrados nas Avaliações', fontsize=16, fontweight='bold', pad=20)
+        ax.set_yticklabels(top_terms.index, fontsize=12)
+        ax.set_xlabel('Frequência', fontsize=14)
+        ax.set_title('🍇 Top 20 Termos de Vinho Encontrados nas Avaliações', fontsize=16, fontweight='bold')
         ax.grid(True, alpha=0.3, axis='x')
         
-        # Adicionar etiquetas de valores nas barras
+        # Adicionar valores nas barras
         for i, (bar, value) in enumerate(zip(bars, top_terms.values)):
             ax.text(value + max(top_terms.values) * 0.01, bar.get_y() + bar.get_height()/2, 
                    str(value), va='center', fontsize=10)
         
-        # Adicionar legenda
+        # Legenda
         from matplotlib.patches import Patch
         legend_elements = [Patch(facecolor='#27ae60', alpha=0.8, label='Positivo'),
                           Patch(facecolor='#e74c3c', alpha=0.8, label='Negativo'),
@@ -743,272 +771,298 @@ def generate_terminal_visualizations(data_clean, stats, wine_lexicon):
         ax.legend(handles=legend_elements, loc='lower right')
         
         plt.tight_layout()
-        plt.savefig(f'{output_dir}/04_top_wine_terms.png', dpi=300, bbox_inches='tight')
+        plt.savefig(f'{output_dir}/07_top_termos_vinho.png', dpi=300, bbox_inches='tight')
         plt.show()
-        print("✅ Gráfico 4/9: Top termos de vinho guardado")
+        plt.close()
     else:
-        print("⚠️  Gráfico 4/9: Nenhum termo de vinho encontrado para mostrar")
+        print("⚠️  Nenhum termo de vinho encontrado")
 
     # ================================================================
-    # 5. CORRELAÇÃO RATING vs SENTIMENTO
+    # 8. SCATTER RATING VS SENTIMENTO
     # ================================================================
     if 'rating' in data_clean.columns and not data_clean['rating'].isna().all():
-        print("📊 A criar correlação rating vs sentimento...")
+        print("📊 Gráfico 8/17: Scatter rating vs sentimento...")
         
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
-        
-        # Gráfico de dispersão: Rating vs Polaridade Aprimorada
         valid_data = data_clean.dropna(subset=['rating', 'enhanced_polarity'])
         if len(valid_data) > 0:
-            scatter = ax1.scatter(valid_data['rating'], valid_data['enhanced_polarity'], 
+            fig, ax = plt.subplots(1, 1, figsize=(12, 8))
+            scatter = ax.scatter(valid_data['rating'], valid_data['enhanced_polarity'], 
                                 alpha=0.6, c=valid_data['wine_terms_found'], 
-                                cmap='viridis', s=30)
-            ax1.set_xlabel('Rating', fontsize=12)
-            ax1.set_ylabel('Polaridade Aprimorada', fontsize=12)
-            ax1.set_title('Rating vs Sentimento Aprimorado\n(Cor = Termos de Vinho Encontrados)', 
-                         fontsize=14, fontweight='bold')
-            ax1.grid(True, alpha=0.3)
-            plt.colorbar(scatter, ax=ax1, label='Termos de Vinho Encontrados')
+                                cmap='viridis', s=40)
+            ax.set_xlabel('Rating', fontsize=14)
+            ax.set_ylabel('Polaridade Aprimorada', fontsize=14)
+            ax.set_title('⭐ Rating vs Sentimento Aprimorado\n(Cor = Termos de Vinho Encontrados)', 
+                         fontsize=16, fontweight='bold')
+            ax.grid(True, alpha=0.3)
+            plt.colorbar(scatter, ax=ax, label='Termos de Vinho Encontrados')
             
-            # Adicionar linha de tendência
+            # Linha de tendência
             z = np.polyfit(valid_data['rating'], valid_data['enhanced_polarity'], 1)
             p = np.poly1d(z)
-            ax1.plot(valid_data['rating'], p(valid_data['rating']), "r--", alpha=0.8, linewidth=2)
-        
-        # Distribuição de rating por categoria de sentimento
-        if 'sentiment_category' in data_clean.columns:
-            sentiment_rating = []
-            labels = []
-            for category in ['Positive', 'Neutral', 'Negative']:
-                if category in data_clean['sentiment_category'].values:
-                    ratings = data_clean[data_clean['sentiment_category'] == category]['rating'].dropna()
-                    if len(ratings) > 0:
-                        sentiment_rating.append(ratings)
-                        labels.append(f'{category}\n(n={len(ratings)})')
+            ax.plot(valid_data['rating'], p(valid_data['rating']), "r--", alpha=0.8, linewidth=2)
             
-            if sentiment_rating:
-                bp = ax2.boxplot(sentiment_rating, labels=labels, patch_artist=True)
-                colors = ['#2ecc71', '#95a5a6', '#e74c3c']
-                for patch, color in zip(bp['boxes'], colors[:len(bp['boxes'])]):
-                    patch.set_facecolor(color)
-                    patch.set_alpha(0.7)
-                
-                ax2.set_ylabel('Rating', fontsize=12)
-                ax2.set_title('Distribuição de Rating\npor Categoria de Sentimento', 
-                             fontsize=14, fontweight='bold')
-                ax2.grid(True, alpha=0.3)
-        
-        plt.suptitle('⭐ Análise Rating vs Sentimento', fontsize=16, fontweight='bold', y=1.02)
-        plt.tight_layout()
-        plt.savefig(f'{output_dir}/05_rating_sentiment_correlation.png', dpi=300, bbox_inches='tight')
-        plt.show()
-        print("✅ Gráfico 5/9: Correlação rating vs sentimento guardado")
-    else:
-        print("⚠️  Gráfico 5/9: Dados de rating não disponíveis")
+            correlation = valid_data['rating'].corr(valid_data['enhanced_polarity'])
+            ax.text(0.05, 0.95, f'Correlação: {correlation:.3f}', transform=ax.transAxes,
+                    fontsize=12, bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.8))
+            
+            plt.tight_layout()
+            plt.savefig(f'{output_dir}/08_rating_vs_sentimento.png', dpi=300, bbox_inches='tight')
+            plt.show()
+            plt.close()
 
     # ================================================================
-    # 6. ANÁLISE POR VARIETAL
+    # 9. BOXPLOT RATING POR SENTIMENTO
+    # ================================================================
+    if 'rating' in data_clean.columns and 'sentiment_category' in data_clean.columns:
+        print("📊 Gráfico 9/17: Boxplot rating por sentimento...")
+        
+        fig, ax = plt.subplots(1, 1, figsize=(10, 8))
+        sentiment_rating = []
+        labels = []
+        for category in ['Positive', 'Neutral', 'Negative']:
+            if category in data_clean['sentiment_category'].values:
+                ratings = data_clean[data_clean['sentiment_category'] == category]['rating'].dropna()
+                if len(ratings) > 0:
+                    sentiment_rating.append(ratings)
+                    labels.append(f'{category}\n(n={len(ratings)})')
+        
+        if sentiment_rating:
+            bp = ax.boxplot(sentiment_rating, labels=labels, patch_artist=True)
+            colors = ['#2ecc71', '#95a5a6', '#e74c3c']
+            for patch, color in zip(bp['boxes'], colors[:len(bp['boxes'])]):
+                patch.set_facecolor(color)
+                patch.set_alpha(0.7)
+            
+            ax.set_ylabel('Rating', fontsize=14)
+            ax.set_title('📊 Distribuição de Rating por Categoria de Sentimento', 
+                         fontsize=16, fontweight='bold')
+            ax.grid(True, alpha=0.3)
+        
+        plt.tight_layout()
+        plt.savefig(f'{output_dir}/09_rating_por_sentimento.png', dpi=300, bbox_inches='tight')
+        plt.show()
+        plt.close()
+
+    # ================================================================
+    # 10. TOP VARIETAIS POR CONTAGEM
     # ================================================================
     if 'varietal' in data_clean.columns:
-        print("📊 A criar análise por varietal...")
+        print("📊 Gráfico 10/17: Top varietais por contagem...")
         
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(14, 10))
-        
-        # Top varietals por contagem
         top_varietals = data_clean['varietal'].value_counts().head(15)
         if len(top_varietals) > 0:
-            bars1 = ax1.barh(range(len(top_varietals)), top_varietals.values, 
-                            color='#9b59b6', alpha=0.8)
-            ax1.set_yticks(range(len(top_varietals)))
-            ax1.set_yticklabels(top_varietals.index)
-            ax1.set_xlabel('Número de Avaliações', fontsize=12)
-            ax1.set_title('Top 15 Varietals por Número de Avaliações', fontsize=14, fontweight='bold')
-            ax1.grid(True, alpha=0.3, axis='x')
+            fig, ax = plt.subplots(1, 1, figsize=(14, 10))
+            bars = ax.barh(range(len(top_varietals)), top_varietals.values, 
+                          color='#9b59b6', alpha=0.8)
+            ax.set_yticks(range(len(top_varietals)))
+            ax.set_yticklabels(top_varietals.index, fontsize=12)
+            ax.set_xlabel('Número de Avaliações', fontsize=14)
+            ax.set_title('🍇 Top 15 Varietais por Número de Avaliações', fontsize=16, fontweight='bold')
+            ax.grid(True, alpha=0.3, axis='x')
             
-            # Adicionar etiquetas de valores
-            for i, (bar, value) in enumerate(zip(bars1, top_varietals.values)):
-                ax1.text(value + max(top_varietals.values) * 0.01, 
+            # Adicionar valores nas barras
+            for i, (bar, value) in enumerate(zip(bars, top_varietals.values)):
+                ax.text(value + max(top_varietals.values) * 0.01, 
                         bar.get_y() + bar.get_height()/2, 
                         str(value), va='center', fontsize=10)
         
-        # Top varietals por sentimento
+            plt.tight_layout()
+            plt.savefig(f'{output_dir}/10_top_varietais_contagem.png', dpi=300, bbox_inches='tight')
+            plt.show()
+            plt.close()
+
+    # ================================================================
+    # 11. TOP VARIETAIS POR SENTIMENTO
+    # ================================================================
+    if 'varietal' in data_clean.columns:
+        print("📊 Gráfico 11/17: Top varietais por sentimento...")
+        
         varietal_sentiment = data_clean.groupby('varietal')['enhanced_polarity'].agg(['mean', 'count'])
         varietal_sentiment = varietal_sentiment[varietal_sentiment['count'] >= 3].sort_values('mean', ascending=False).head(15)
         
         if len(varietal_sentiment) > 0:
-            colors2 = ['#27ae60' if x > 0.1 else '#e74c3c' if x < -0.1 else '#f39c12' 
+            fig, ax = plt.subplots(1, 1, figsize=(14, 10))
+            colors = ['#27ae60' if x > 0.1 else '#e74c3c' if x < -0.1 else '#f39c12' 
                       for x in varietal_sentiment['mean']]
-            bars2 = ax2.barh(range(len(varietal_sentiment)), varietal_sentiment['mean'], 
-                            color=colors2, alpha=0.8)
-            ax2.set_yticks(range(len(varietal_sentiment)))
-            ax2.set_yticklabels(varietal_sentiment.index)
-            ax2.set_xlabel('Polaridade Aprimorada Média', fontsize=12)
-            ax2.set_title('Top 15 Varietals por Sentimento Médio (mín. 3 avaliações)', 
-                         fontsize=14, fontweight='bold')
-            ax2.grid(True, alpha=0.3, axis='x')
-            ax2.axvline(0, color='black', linestyle='-', alpha=0.5, linewidth=1)
+            bars = ax.barh(range(len(varietal_sentiment)), varietal_sentiment['mean'], 
+                          color=colors, alpha=0.8)
+            ax.set_yticks(range(len(varietal_sentiment)))
+            ax.set_yticklabels(varietal_sentiment.index, fontsize=12)
+            ax.set_xlabel('Polaridade Aprimorada Média', fontsize=14)
+            ax.set_title('🍇 Top 15 Varietais por Sentimento Médio (mín. 3 avaliações)', 
+                         fontsize=16, fontweight='bold')
+            ax.grid(True, alpha=0.3, axis='x')
+            ax.axvline(0, color='black', linestyle='-', alpha=0.5, linewidth=1)
             
-            # Adicionar etiquetas de valores
-            for i, (bar, value) in enumerate(zip(bars2, varietal_sentiment['mean'])):
-                ax2.text(value + (max(varietal_sentiment['mean']) - min(varietal_sentiment['mean'])) * 0.02, 
+            # Adicionar valores nas barras
+            for i, (bar, value) in enumerate(zip(bars, varietal_sentiment['mean'])):
+                ax.text(value + (max(varietal_sentiment['mean']) - min(varietal_sentiment['mean'])) * 0.02, 
                         bar.get_y() + bar.get_height()/2, 
                         f'{value:.3f}', va='center', fontsize=10)
         
-        plt.suptitle('🍇 Análise por Varietal', fontsize=16, fontweight='bold', y=0.98)
-        plt.tight_layout()
-        plt.savefig(f'{output_dir}/06_varietal_analysis.png', dpi=300, bbox_inches='tight')
-        plt.show()
-        print("✅ Gráfico 6/9: Análise por varietal guardado")
-    else:
-        print("⚠️  Gráfico 6/9: Dados de varietal não disponíveis")
+            plt.tight_layout()
+            plt.savefig(f'{output_dir}/11_top_varietais_sentimento.png', dpi=300, bbox_inches='tight')
+            plt.show()
+            plt.close()
 
     # ================================================================
-    # 7. ANÁLISE POR PAÍS
+    # 12. TOP PAÍSES POR CONTAGEM
     # ================================================================
     if 'country' in data_clean.columns:
-        print("📊 A criar análise por país...")
+        print("📊 Gráfico 12/17: Top países por contagem...")
         
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(14, 10))
-        
-        # Top países por contagem
         top_countries = data_clean['country'].value_counts().head(15)
         if len(top_countries) > 0:
-            bars1 = ax1.barh(range(len(top_countries)), top_countries.values, 
-                            color='#3498db', alpha=0.8)
-            ax1.set_yticks(range(len(top_countries)))
-            ax1.set_yticklabels(top_countries.index)
-            ax1.set_xlabel('Número de Avaliações', fontsize=12)
-            ax1.set_title('Top 15 Países por Número de Avaliações', fontsize=14, fontweight='bold')
-            ax1.grid(True, alpha=0.3, axis='x')
+            fig, ax = plt.subplots(1, 1, figsize=(14, 10))
+            bars = ax.barh(range(len(top_countries)), top_countries.values, 
+                          color='#3498db', alpha=0.8)
+            ax.set_yticks(range(len(top_countries)))
+            ax.set_yticklabels(top_countries.index, fontsize=12)
+            ax.set_xlabel('Número de Avaliações', fontsize=14)
+            ax.set_title('🌍 Top 15 Países por Número de Avaliações', fontsize=16, fontweight='bold')
+            ax.grid(True, alpha=0.3, axis='x')
             
-            # Adicionar etiquetas de valores
-            for i, (bar, value) in enumerate(zip(bars1, top_countries.values)):
-                ax1.text(value + max(top_countries.values) * 0.01, 
+            # Adicionar valores nas barras
+            for i, (bar, value) in enumerate(zip(bars, top_countries.values)):
+                ax.text(value + max(top_countries.values) * 0.01, 
                         bar.get_y() + bar.get_height()/2, 
                         str(value), va='center', fontsize=10)
         
-        # Top países por sentimento
+            plt.tight_layout()
+            plt.savefig(f'{output_dir}/12_top_paises_contagem.png', dpi=300, bbox_inches='tight')
+            plt.show()
+            plt.close()
+
+    # ================================================================
+    # 13. TOP PAÍSES POR SENTIMENTO
+    # ================================================================
+    if 'country' in data_clean.columns:
+        print("📊 Gráfico 13/17: Top países por sentimento...")
+        
         country_sentiment = data_clean.groupby('country')['enhanced_polarity'].agg(['mean', 'count'])
         country_sentiment = country_sentiment[country_sentiment['count'] >= 5].sort_values('mean', ascending=False).head(15)
         
         if len(country_sentiment) > 0:
-            colors2 = ['#27ae60' if x > 0.1 else '#e74c3c' if x < -0.1 else '#f39c12' 
+            fig, ax = plt.subplots(1, 1, figsize=(14, 10))
+            colors = ['#27ae60' if x > 0.1 else '#e74c3c' if x < -0.1 else '#f39c12' 
                       for x in country_sentiment['mean']]
-            bars2 = ax2.barh(range(len(country_sentiment)), country_sentiment['mean'], 
-                            color=colors2, alpha=0.8)
-            ax2.set_yticks(range(len(country_sentiment)))
-            ax2.set_yticklabels(country_sentiment.index)
-            ax2.set_xlabel('Polaridade Aprimorada Média', fontsize=12)
-            ax2.set_title('Top 15 Países por Sentimento Médio (mín. 5 avaliações)', 
-                         fontsize=14, fontweight='bold')
-            ax2.grid(True, alpha=0.3, axis='x')
-            ax2.axvline(0, color='black', linestyle='-', alpha=0.5, linewidth=1)
+            bars = ax.barh(range(len(country_sentiment)), country_sentiment['mean'], 
+                          color=colors, alpha=0.8)
+            ax.set_yticks(range(len(country_sentiment)))
+            ax.set_yticklabels(country_sentiment.index, fontsize=12)
+            ax.set_xlabel('Polaridade Aprimorada Média', fontsize=14)
+            ax.set_title('🌍 Top 15 Países por Sentimento Médio (mín. 5 avaliações)', 
+                         fontsize=16, fontweight='bold')
+            ax.grid(True, alpha=0.3, axis='x')
+            ax.axvline(0, color='black', linestyle='-', alpha=0.5, linewidth=1)
             
-            # Adicionar etiquetas de valores
-            for i, (bar, value) in enumerate(zip(bars2, country_sentiment['mean'])):
-                ax2.text(value + (max(country_sentiment['mean']) - min(country_sentiment['mean'])) * 0.02, 
+            # Adicionar valores nas barras
+            for i, (bar, value) in enumerate(zip(bars, country_sentiment['mean'])):
+                ax.text(value + (max(country_sentiment['mean']) - min(country_sentiment['mean'])) * 0.02, 
                         bar.get_y() + bar.get_height()/2, 
                         f'{value:.3f}', va='center', fontsize=10)
         
-        plt.suptitle('🌍 Análise por País', fontsize=16, fontweight='bold', y=0.98)
+            plt.tight_layout()
+            plt.savefig(f'{output_dir}/13_top_paises_sentimento.png', dpi=300, bbox_inches='tight')
+            plt.show()
+            plt.close()
+
+    # ================================================================
+    # 14. ANÁLISE POR TIPO DE VINHO
+    # ================================================================
+    if 'wine_type' in data_clean.columns:
+        print("📊 Gráfico 14/17: Análise por tipo de vinho...")
+        
+        fig, ax = plt.subplots(1, 1, figsize=(12, 8))
+        
+        # Sentimento médio por tipo
+        wine_type_sentiment = data_clean.groupby('wine_type')['enhanced_polarity'].mean().sort_values(ascending=False)
+        colors = ['#27ae60' if x > 0.1 else '#e74c3c' if x < -0.1 else '#f39c12' 
+                  for x in wine_type_sentiment.values]
+        bars = ax.bar(range(len(wine_type_sentiment)), wine_type_sentiment.values, color=colors, alpha=0.8)
+        ax.set_xticks(range(len(wine_type_sentiment)))
+        ax.set_xticklabels(wine_type_sentiment.index, rotation=45, ha='right', fontsize=12)
+        ax.set_ylabel('Polaridade Aprimorada Média', fontsize=14)
+        ax.set_title('🍷 Sentimento Médio por Tipo de Vinho', fontsize=16, fontweight='bold')
+        ax.grid(True, alpha=0.3, axis='y')
+        ax.axhline(0, color='black', linestyle='-', alpha=0.5, linewidth=1)
+        
+        # Adicionar valores nas barras
+        for bar, value in zip(bars, wine_type_sentiment.values):
+            ax.text(bar.get_x() + bar.get_width()/2, value + 0.01 if value >= 0 else value - 0.01,
+                    f'{value:.3f}', ha='center', va='bottom' if value >= 0 else 'top', fontsize=10)
+        
         plt.tight_layout()
-        plt.savefig(f'{output_dir}/07_country_analysis.png', dpi=300, bbox_inches='tight')
+        plt.savefig(f'{output_dir}/14_sentimento_tipo_vinho.png', dpi=300, bbox_inches='tight')
         plt.show()
-        print("✅ Gráfico 7/9: Análise por país guardado")
-    else:
-        print("⚠️  Gráfico 7/9: Dados de país não disponíveis")
+        plt.close()
 
     # ================================================================
-    # 8. DASHBOARD RESUMO ABRANGENTE
+    # 15. HEATMAP CORRELAÇÕES
     # ================================================================
-    print("📊 A criar dashboard de resumo abrangente...")
+    print("📊 Gráfico 15/17: Heatmap de correlações...")
     
-    fig = plt.figure(figsize=(20, 12))
-    gs = fig.add_gridspec(3, 4, hspace=0.3, wspace=0.3)
+    # Selecionar colunas numéricas para correlação
+    numeric_cols = ['original_polarity', 'enhanced_polarity', 'subjectivity', 'wine_terms_found', 'wine_boost']
+    if 'rating' in data_clean.columns:
+        numeric_cols.append('rating')
+    if 'price' in data_clean.columns:
+        numeric_cols.append('price')
     
-    # Estatísticas de resumo
-    ax1 = fig.add_subplot(gs[0, :2])
-    summary_data = {
-        'Total de Avaliações': len(data_clean),
-        'Polaridade Original Média': data_clean['original_polarity'].mean(),
-        'Polaridade Aprimorada Média': data_clean['enhanced_polarity'].mean(),
-        'Avaliações com Termos de Vinho': (data_clean['wine_terms_found'] > 0).sum(),
-        'Termos de Vinho Únicos': len(stats['term_frequency']),
-        'Avaliações Positivas (%)': (data_clean['sentiment_category'] == 'Positive').mean() * 100,
-        'Avaliações Negativas (%)': (data_clean['sentiment_category'] == 'Negative').mean() * 100,
-        'Avaliações Neutras (%)': (data_clean['sentiment_category'] == 'Neutral').mean() * 100
-    }
+    correlation_data = data_clean[numeric_cols].corr()
     
-    ax1.axis('off')
-    summary_text = '\n'.join([f'{k}: {v:.3f}' if isinstance(v, float) else f'{k}: {v:,}' 
-                             for k, v in summary_data.items()])
-    ax1.text(0.1, 0.9, '📊 RESUMO DA ANÁLISE', fontsize=16, fontweight='bold', 
-             transform=ax1.transAxes)
-    ax1.text(0.1, 0.1, summary_text, fontsize=12, transform=ax1.transAxes, 
-             verticalalignment='bottom')
-    
-    # Comparação de polaridade (mini)
-    ax2 = fig.add_subplot(gs[0, 2:])
-    ax2.hist(data_clean['original_polarity'], bins=20, alpha=0.7, label='Original', color='#3498db')
-    ax2.hist(data_clean['enhanced_polarity'], bins=20, alpha=0.7, label='Aprimorado', color='#e74c3c')
-    ax2.set_title('Comparação da Distribuição de Polaridade', fontweight='bold')
-    ax2.legend()
-    ax2.grid(True, alpha=0.3)
-    
-    # Gráfico circular de sentimento
-    ax3 = fig.add_subplot(gs[1, :2])
-    sentiment_counts = data_clean['sentiment_category'].value_counts()
-    colors = ['#2ecc71', '#95a5a6', '#e74c3c']
-    ax3.pie(sentiment_counts.values, labels=sentiment_counts.index, autopct='%1.1f%%', 
-            colors=colors, startangle=90)
-    ax3.set_title('Distribuição de Sentimento Aprimorado', fontweight='bold')
-    
-    # Top termos (mini)
-    ax4 = fig.add_subplot(gs[1, 2:])
-    if len(stats['term_frequency']) > 0:
-        top_terms_mini = stats['term_frequency'].head(8)
-        ax4.barh(range(len(top_terms_mini)), top_terms_mini.values, color='#9b59b6', alpha=0.8)
-        ax4.set_yticks(range(len(top_terms_mini)))
-        ax4.set_yticklabels(top_terms_mini.index, fontsize=10)
-        ax4.set_title('Top Termos de Vinho', fontweight='bold')
-        ax4.grid(True, alpha=0.3, axis='x')
-    
-    # Impacto dos termos de vinho
-    ax5 = fig.add_subplot(gs[2, :])
-    comparison_data = pd.DataFrame({
-        'Original': data_clean['original_polarity'],
-        'Aprimorado': data_clean['enhanced_polarity'],
-        'Termos_Vinho': data_clean['wine_terms_found']
-    })
-    
-    # Criar subgráficos para análise de impacto
-    impact_with_terms = data_clean[data_clean['wine_terms_found'] > 0]
-    impact_without_terms = data_clean[data_clean['wine_terms_found'] == 0]
-    
-    if len(impact_with_terms) > 0 and len(impact_without_terms) > 0:
-        ax5.hist(impact_without_terms['enhanced_polarity'], bins=15, alpha=0.7, 
-                label=f'Sem Termos de Vinho (n={len(impact_without_terms)})', color='#95a5a6')
-        ax5.hist(impact_with_terms['enhanced_polarity'], bins=15, alpha=0.7, 
-                label=f'Com Termos de Vinho (n={len(impact_with_terms)})', color='#e74c3c')
-        ax5.set_title('Impacto dos Termos de Vinho no Sentimento', fontweight='bold')
-        ax5.set_xlabel('Polaridade Aprimorada')
-        ax5.set_ylabel('Frequência')
-        ax5.legend()
-        ax5.grid(True, alpha=0.3)
-    
-    plt.suptitle('🍷 Análise de Sentimento de Vinhos - Dashboard Completo', 
-                 fontsize=20, fontweight='bold', y=0.98)
-    plt.savefig(f'{output_dir}/08_complete_dashboard.png', dpi=300, bbox_inches='tight')
+    fig, ax = plt.subplots(1, 1, figsize=(10, 8))
+    sns.heatmap(correlation_data, annot=True, cmap='RdBu_r', center=0, 
+                square=True, linewidths=0.5, cbar_kws={"shrink": .8}, ax=ax)
+    ax.set_title('🔥 Matriz de Correlações das Variáveis Principais', fontsize=16, fontweight='bold')
+    plt.tight_layout()
+    plt.savefig(f'{output_dir}/15_correlacoes_heatmap.png', dpi=300, bbox_inches='tight')
     plt.show()
-    print("✅ Gráfico 8/9: Dashboard completo guardado")
+    plt.close()
 
     # ================================================================
-    # 9. ANÁLISE POR TIPO DE VINHO
+    # 16. DISTRIBUIÇÃO DE TIPOS DE VINHO
     # ================================================================
-    generate_wine_type_analysis_chart(data_clean, stats, wine_lexicon, output_dir)
+    if 'wine_type' in data_clean.columns:
+        print("📊 Gráfico 16/17: Distribuição de tipos de vinho...")
+        
+        wine_type_counts = data_clean['wine_type'].value_counts()
+        colors = ['#e74c3c', '#f39c12', '#e91e63', '#9b59b6', '#3498db', '#27ae60']
+        
+        fig, ax = plt.subplots(1, 1, figsize=(10, 8))
+        wedges, texts, autotexts = ax.pie(wine_type_counts.values, labels=wine_type_counts.index, 
+                                          autopct='%1.1f%%', colors=colors[:len(wine_type_counts)], 
+                                          startangle=90)
+        ax.set_title('🍷 Distribuição por Tipo de Vinho', fontsize=16, fontweight='bold')
+        plt.tight_layout()
+        plt.savefig(f'{output_dir}/16_distribuicao_tipos_vinho.png', dpi=300, bbox_inches='tight')
+        plt.show()
+        plt.close()
+
+    # ================================================================
+    # 17. DISTRIBUIÇÃO DE SUBJETIVIDADE
+    # ================================================================
+    print("📊 Gráfico 17/17: Distribuição de subjetividade...")
     
+    fig, ax = plt.subplots(1, 1, figsize=(12, 8))
+    sns.histplot(data_clean['subjectivity'], kde=True, alpha=0.7, 
+                 color='#9b59b6', ax=ax, bins=30)
+    ax.axvline(data_clean['subjectivity'].mean(), color='red', 
+                linestyle='--', alpha=0.8, linewidth=2, 
+                label=f'Média: {data_clean["subjectivity"].mean():.3f}')
+    ax.set_title('📊 Distribuição de Subjetividade das Avaliações', 
+                  fontsize=16, fontweight='bold', pad=20)
+    ax.set_xlabel('Subjetividade', fontsize=14)
+    ax.set_ylabel('Frequência', fontsize=14)
+    ax.legend()
+    ax.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(f'{output_dir}/17_distribuicao_subjetividade.png', dpi=300, bbox_inches='tight')
+    plt.show()
+    plt.close()
+
     # ================================================================
-    # 10-11. ANÁLISE NLP AVANÇADA
+    # ANÁLISE NLP AVANÇADA (WORD CLOUDS E ANÁLISE AVANÇADA)
     # ================================================================
     print("🔬 A executar análise NLP avançada...")
     
@@ -1018,31 +1072,59 @@ def generate_terminal_visualizations(data_clean, stats, wine_lexicon):
     # Análise de preço vs qualidade
     price_analysis = analyze_price_quality_correlation(data_clean)
     
-    # Gerar word clouds
-    generate_wordcloud_analysis(data_clean, descriptor_analysis)
+    # Gerar word clouds (gráfico adicional se disponível)
+    try:
+        generate_wordcloud_analysis(data_clean, descriptor_analysis)
+    except Exception as e:
+        print(f"⚠️  Word clouds não disponíveis: {e}")
     
-    # Gerar gráficos avançados
-    generate_advanced_analysis_charts(data_clean, descriptor_analysis, price_analysis)
+    # Gerar gráficos avançados (gráfico adicional se disponível)
+    try:
+        generate_advanced_analysis_charts(data_clean, descriptor_analysis, price_analysis)
+    except Exception as e:
+        print(f"⚠️  Análise avançada limitada: {e}")
     
     # ================================================================
-    # RESUMO FINAL ATUALIZADO
+    # RESUMO FINAL
     # ================================================================
     print("\n" + "="*60)
-    print("🎯 GERAÇÃO DE VISUALIZAÇÕES CONCLUÍDA!")
+    print("🎯 GERAÇÃO DE VISUALIZAÇÕES INDIVIDUAIS CONCLUÍDA!")
     print("="*60)
     print(f"📁 Diretório de saída: {output_dir}/")
-    print("📊 Gráficos gerados:")
-    print("   1. 01_polarity_comparison.png")
-    print("   2. 02_sentiment_distribution.png") 
-    print("   3. 03_wine_terms_impact.png")
-    print("   4. 04_top_wine_terms.png")
-    print("   5. 05_rating_sentiment_correlation.png")
-    print("   6. 06_varietal_analysis.png")
-    print("   7. 07_country_analysis.png")
-    print("   8. 08_complete_dashboard.png")
-    print("   9. 09_wine_type_analysis.png")
-    print("  10. 10_wordcloud_analysis.png")
-    print("  11. 11_advanced_nlp_analysis.png")
+    print("📊 Gráficos individuais gerados:")
+    print("   01. polaridade_original.png")
+    print("   02. polaridade_aprimorada.png") 
+    print("   03. sentimento_original.png")
+    print("   04. sentimento_aprimorado.png")
+    print("   05. frequencia_termos_vinho.png")
+    print("   06. boost_termos_vinho.png")
+    print("   07. top_termos_vinho.png")
+    print("   08. rating_vs_sentimento.png")
+    print("   09. rating_por_sentimento.png")
+    print("   10. top_varietais_contagem.png")
+    print("   11. top_varietais_sentimento.png")
+    print("   12. top_paises_contagem.png")
+    print("   13. top_paises_sentimento.png")
+    print("   14. sentimento_tipo_vinho.png")
+    print("   15. correlacoes_heatmap.png")
+    print("   16. distribuicao_tipos_vinho.png")
+    print("   17. distribuicao_subjetividade.png")
+    
+    # Verificar se gráficos adicionais foram gerados
+    additional_files = [
+        f"{output_dir}/10_wordcloud_analysis.png",
+        f"{output_dir}/11_advanced_nlp_analysis.png"
+    ]
+    
+    additional_count = sum(1 for f in additional_files if os.path.exists(f))
+    if additional_count > 0:
+        print(f"   + {additional_count} gráficos NLP adicionais")
+    
+    total_graphs = 17 + additional_count
+    print("="*60)
+    print(f"✅ Total: {total_graphs} gráficos individuais em PNG")
+    print("📂 Cada gráfico pode ser visualizado independentemente")
+    print("🔍 Use qualquer visualizador de imagens para abrir os ficheiros")
     print("="*60)
     
     return output_dir
@@ -1247,6 +1329,7 @@ def show_enhanced_terminal_summary(data_clean, stats, summary_stats, wine_lexico
         
         if 'price_range' in stats_price:
             price_min, price_max = stats_price['price_range']
+
             print(f"   • Faixa de preços: ${price_min:.2f} - ${price_max:.2f}")
         
         if 'rating_range' in stats_price:
