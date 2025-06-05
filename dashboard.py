@@ -35,13 +35,11 @@ def load_translations(language):
             with open(translation_file, 'r', encoding='utf-8') as f:
                 return json.load(f)
         else:
-            # Fallback para inglês se o ficheiro não existir
             st.warning(f"Translation file {translation_file} not found. Using English as fallback.")
             with open("translation/en.json", 'r', encoding='utf-8') as f:
                 return json.load(f)
     except Exception as e:
         st.error(f"Error loading translations: {e}")
-        # Traduções básicas de emergência
         return {
             "main_title": "🍷 Wine Analytics Dashboard",
             "messages": {
@@ -58,12 +56,11 @@ def get_text(translations, key_path, **kwargs):
         for key in keys:
             value = value[key]
         
-        # Formatar com parâmetros se fornecidos
         if kwargs:
             return value.format(**kwargs)
         return value
     except (KeyError, TypeError):
-        return key_path  # Retorna a chave se não encontrar tradução
+        return key_path  
 
 # ====================================================================
 # CSS CUSTOMIZADO
@@ -155,7 +152,6 @@ def load_wine_data():
 def load_advanced_analysis_data():
     """Carregar dados de análise avançada se disponíveis"""
     try:
-        # Tentar carregar dados de análise avançada
         summary_files = [
             'data/wine_analysis_summary_en.csv',
             'wine_analysis_summary_en.csv'
@@ -173,7 +169,6 @@ def load_advanced_analysis_data():
 @st.cache_data(show_spinner=False)
 def check_nlp_analysis_available():
     """Verificar se análise NLP avançada está disponível"""
-    # Verificar se existem arquivos de análise avançada
     advanced_files = [
         'imagens/10_wordcloud_analysis.png',
         'imagens/11_advanced_nlp_analysis.png'
@@ -226,13 +221,11 @@ def create_modern_donut_chart(df, column, title, colors=None):
             font=dict(size=10),
             itemclick="toggleothers",
             itemdoubleclick="toggle",
-            # Configurações para layout horizontal
             itemsizing="constant",
             itemwidth=80,           
             traceorder="normal"
         ),
-        height=420,                   #
-        # Margens ajustadas para legenda inferior
+        height=420,                  
         margin=dict(
             t=50,    
             b=80,    
@@ -245,11 +238,10 @@ def create_modern_donut_chart(df, column, title, colors=None):
         paper_bgcolor='rgba(0,0,0,0)'
     )
     
-    # Ajustar o domain para dar espaço à legenda inferior
     fig.update_traces(
         domain=dict(
-            x=[0.1, 0.9],    # Centralizar horizontalmente
-            y=[0.15, 0.85]   # Dar espaço para legenda em baixo
+            x=[0.1, 0.9],    
+            y=[0.15, 0.85]  
         ),
         textfont_size=11,
         marker=dict(
@@ -269,7 +261,7 @@ def create_modern_bar_chart(df, x_col, y_col, title, orientation='v', top_n=15):
         x_data = data.index
         y_data = data.values
     else:
-        grouped = df.groupby(x_col)[y_col].agg(['mean', 'count']).reset_index()
+        grouped = df.groupby(x_col, observed=False)[y_col].agg(['mean', 'count']).reset_index()
         grouped = grouped[grouped['count'] >= 3].sort_values('mean', ascending=False).head(top_n)
         x_data = grouped[x_col]
         y_data = grouped['mean']
@@ -376,7 +368,6 @@ def create_scatter_plot(df, x_col, y_col, color_col, title):
         hover_data=[col for col in ['wine_type', 'varietal', 'country'] if col in df.columns]
     )
     
-    # Adicionar linha de tendência
     try:
         z = np.polyfit(valid_data[x_col], valid_data[y_col], 1)
         p = np.poly1d(z)
@@ -407,7 +398,6 @@ def create_word_frequency_chart(df, translations):
     if 'wine_terms_found' not in df.columns:
         return None
     
-    # Análise de distribuição de termos
     terms_dist = df['wine_terms_found'].value_counts().sort_index()
     
     fig = px.bar(
@@ -559,7 +549,7 @@ def display_advanced_images(translations):
                     image_path, image_title = available_images[i + j]
                     with col:
                         st.markdown(f"**{image_title}**")
-                        st.image(image_path, use_column_width=True)
+                        st.image(image_path, use_container_width=True)
     
     return len(available_images) > 0
 
@@ -1104,10 +1094,15 @@ def main():
                         if len(valid_data) > 50:
                             st.markdown("##### 💎 Price Category Analysis")
                             
-                            # Criar quartis de preço
-                            valid_data['price_quartile'] = pd.qcut(valid_data['price'], 4, labels=['Budget', 'Mid-Range', 'Premium', 'Luxury'])
+                            # Criar quartis de preço - usando .copy() para evitar warning
+                            price_data = valid_data.copy()
+                            price_data['price_quartile'] = pd.qcut(
+                                price_data['price'], 
+                                4, 
+                                labels=['Budget', 'Mid-Range', 'Premium', 'Luxury']
+                            )
                             
-                            price_analysis = valid_data.groupby('price_quartile').agg({
+                            price_analysis = price_data.groupby('price_quartile', observed=False).agg({
                                 'rating': ['count', 'mean', 'std'],
                                 'enhanced_polarity': ['mean', 'std'],
                                 'price': ['mean', 'min', 'max']
@@ -1135,7 +1130,7 @@ def main():
                 
                 with col1:
                     st.markdown("##### 📊 Rating Statistics by Sentiment")
-                    rating_analysis = df.groupby('sentiment_category')['rating'].agg(['count', 'mean', 'std', 'min', 'max']).round(2)
+                    rating_analysis = df.groupby('sentiment_category', observed=False)['rating'].agg(['count', 'mean', 'std', 'min', 'max']).round(2)
                     rating_analysis.columns = ['Count', 'Mean', 'Std Dev', 'Min', 'Max']
                     st.dataframe(rating_analysis, use_container_width=True)
                 
@@ -1143,7 +1138,7 @@ def main():
                     # Distribuição percentual
                     if 'wine_type' in df.columns:
                         st.markdown("##### 🍷 Rating Distribution by Wine Type")
-                        wine_rating = df.groupby(['wine_type', 'sentiment_category']).size().unstack(fill_value=0)
+                        wine_rating = df.groupby(['wine_type', 'sentiment_category'], observed=False).size().unstack(fill_value=0)
                         wine_rating_pct = wine_rating.div(wine_rating.sum(axis=1), axis=0) * 100
                         st.dataframe(wine_rating_pct.round(1), use_container_width=True)
         
@@ -1167,7 +1162,7 @@ def main():
                 if os.path.exists(image_path):
                     st.markdown(f"##### {image_info['title']}")
                     st.markdown(f"*{image_info['description']}*")
-                    st.image(image_path, use_column_width=True)
+                    st.image(image_path, use_container_width=True)  # Corrigido aqui
                     st.markdown("---")
                     images_found += 1
             
