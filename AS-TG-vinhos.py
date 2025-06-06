@@ -1247,6 +1247,9 @@ def show_enhanced_terminal_summary(data_clean, stats, summary_stats, wine_lexico
         
         if 'price_range' in stats_price:
             price_min, price_max = stats_price['price_range']
+
+
+
             print(f"   • Faixa de preços: ${price_min:.2f} - ${price_max:.2f}")
         
         if 'rating_range' in stats_price:
@@ -1791,19 +1794,8 @@ if __name__ == "__main__":
             else:
                 print("⚠️  Análise NLP limitada (instale: pip install nltk wordcloud)")
             
-            # Mostrar resumo completo
+            # Mostrar resumo após gráficos
             show_terminal_summary(data_clean, stats, summary_stats, wine_lexicon)
-            
-            # Instruções para visualizar gráficos
-            print("\n" + "="*60)
-            print("🖼️  COMO VISUALIZAR OS GRÁFICOS GERADOS:")
-            print("="*60)
-            print(f"📁 Abra a pasta: {output_dir}/")
-            print("📊 Gráficos disponíveis:")
-            print("   01-09: Análise básica de sentimento")
-            print("   10: Word clouds comparativos")
-            print("   11: Análise NLP avançada")
-            print("="*60)
             
         except Exception as e:
             print(f"❌ Erro ao gerar gráficos: {e}")
@@ -1811,10 +1803,33 @@ if __name__ == "__main__":
             show_enhanced_terminal_summary(data_clean, stats, summary_stats, wine_lexicon)
     
     elif choice == "3":
-        # APENAS RESUMO NO TERMINAL
-        show_terminal_summary(data_clean, stats, summary_stats, wine_lexicon)
+        # ANÁLISE MEGA DETALHADA NO TERMINAL
+        print("\n📋 A executar análise mega detalhada...")
+        print("🔍 Incluindo estatísticas avançadas, correlações e insights")
+        
+        try:
+            # Executar análises NLP se disponível
+            descriptor_analysis = analyze_descriptors_by_rating(data_clean)
+            price_analysis = analyze_price_quality_correlation(data_clean)
+            
+            # Mostrar resumo mega detalhado
+            show_enhanced_terminal_summary(data_clean, stats, summary_stats, wine_lexicon, 
+                                          descriptor_analysis, price_analysis, nlp_available=True)
+        except Exception as e:
+            print(f"⚠️  Análise NLP limitada: {e}")
+            print("📊 A mostrar análise detalhada básica...")
+            show_enhanced_terminal_summary(data_clean, stats, summary_stats, wine_lexicon, 
+                                          nlp_available=False)
     
     elif choice == "4":
+        # MOSTRAR COMANDOS PARA ESTRUTURA DO PROJETO
+        print_project_structure_commands()
+        
+        # Depois mostrar resumo
+        print("\n📊 A mostrar resumo da análise atual...")
+        show_terminal_summary(data_clean, stats, summary_stats, wine_lexicon)
+    
+    elif choice == "5":
         # SAIR
         print("\n👋 Análise concluída!")
         print("📄 Dados guardados na pasta data/")
@@ -1838,3 +1853,13 @@ if __name__ == "__main__":
         print("4. O dashboard abrirá em: http://localhost:8501")
         print("5. Para parar o dashboard, pressione Ctrl+C no terminal onde está a correr")
         print("="*60)
+    
+    if choice == "4":
+        print("\n📋 PRÓXIMOS PASSOS APÓS CRIAR ESTRUTURA:")
+        print("=" * 50)
+        print("1. Execute os comandos mostrados acima")
+        print("2. Mova o AS-TG-vinhos.py atual para a nova estrutura")
+        print("3. Gradualmente refatore o código para usar módulos")
+        print("4. Teste cada módulo independentemente")
+        print("5. Atualize a documentação conforme necessário")
+        print("=" * 50)

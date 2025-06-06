@@ -623,7 +623,6 @@ def main():
     
     st.sidebar.markdown("---")
     
-    # Backup original dataframe
     original_df = df.copy()
     
     # Filter 1: Wine Type
@@ -830,7 +829,6 @@ def main():
     
     st.markdown(f'<h2 class="section-header">{get_text(translations, "visualizations.title")}</h2>', unsafe_allow_html=True)
     
-    # Row 1: Sentiment Distribution e Polarity Comparison
     col1, col2 = st.columns(2)
     
     with col1:
@@ -1162,7 +1160,7 @@ def main():
                 if os.path.exists(image_path):
                     st.markdown(f"##### {image_info['title']}")
                     st.markdown(f"*{image_info['description']}*")
-                    st.image(image_path, use_container_width=True)  # Corrigido aqui
+                    st.image(image_path, use_container_width=True)
                     st.markdown("---")
                     images_found += 1
             
