@@ -1,5 +1,5 @@
 {
-  "main_title": "🍷 Análise de Sentimento de Vinhos",
+  "main_title": "🍷 Dashboard de Análise de Vinhos",
   "main_subtitle": "Análise avançada de sentimento para avaliações de vinhos em inglês",
   "main_description": "Powered by TextBlob + léxico especializado (400+ termos)",
 
@@ -18,7 +18,7 @@
   "messages": {
     "loading_data": "A carregar dados de vinhos...",
     "processing": "A processar análise de sentimento...",
-    "no_data": "Nenhum dado disponível para mostrar",
+    "no_data": "❌ Nenhum dado encontrado!",
     "no_data_filters": "Nenhum dado corresponde aos filtros atuais",
     "error_loading": "Erro ao carregar dados"
   },
@@ -112,5 +112,10 @@
     "title": "🍷 Dashboard de Análise de Sentimentos de Vinhos",
     "developers": "Desenvolvido por Dario Dourado e Renato Ruivo",
     "course": "Sistemas Inteligentes - Análise Avançada de Sentimentos em Avaliações de Vinhos"
+  },
+
+  "sidebar": {
+    "title": "Filtros",
+    "language": "Idioma"
   }
 }

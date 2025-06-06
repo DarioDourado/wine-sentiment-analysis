@@ -1,5 +1,5 @@
 {
-  "main_title": "🍷 Wine Sentiment Analysis",
+  "main_title": "🍷 Wine Analytics Dashboard",
   "main_subtitle": "Advanced sentiment analysis for wine reviews in English",
   "main_description": "Powered by TextBlob + specialized wine lexicon (400+ terms)",
   "common": {
@@ -16,7 +16,7 @@
   "messages": {
     "loading_data": "Loading wine data...",
     "processing": "Processing sentiment analysis...",
-    "no_data": "No data available to display",
+    "no_data": "❌ No data found!",
     "no_data_filters": "No data matches the current filters",
     "error_loading": "Error loading data"
   },
@@ -101,5 +101,9 @@
     "title": "🍷 Wine Sentiment Analysis Dashboard",
     "developers": "Developed by Dario Dourado and Renato Ruivo",
     "course": "Intelligent Systems - Advanced Wine Review Sentiment Analysis"
+  },
+  "sidebar": {
+    "title": "Filters",
+    "language": "Language"
   }
 }
